@@ -1,0 +1,2 @@
+# Loại trừ file môi trường chứa các khóa bí mật
+.env
