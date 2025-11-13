@@ -6,8 +6,24 @@ const User = require('../models/User');
 // const hashed = await bcrypt.hash(password, 10);
 // const user = await User.create({ name, email, password: hashed });
 
-const signToken = (user) => jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '15m' });
-const signRefresh = (user) => jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '30d' });
+const signToken = (user) => {
+    const secret = process.env.JWT_SECRET;
+    const expires = process.env.JWT_EXPIRES_IN || '1h';
+    if (!secret) {
+        console.error('Missing JWT_SECRET');
+        throw new Error('Missing JWT_SECRET');
+    }
+    return jwt.sign({ id: user._id }, secret, { expiresIn: expires });
+};
+const signRefresh = (user) => {
+    const secret = process.env.REFRESH_TOKEN_SECRET;
+    const expires = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d';
+    if (!secret) {
+        console.error('Missing REFRESH_TOKEN_SECRET');
+        throw new Error('Missing REFRESH_TOKEN_SECRET');
+    }
+    return jwt.sign({ id: user._id }, secret, { expiresIn: expires });
+};
 
 exports.register = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -41,11 +57,28 @@ exports.login = asyncHandler(async (req, res) => {
 
     const accessToken = signToken(user);
     const refreshToken = signRefresh(user);
-    user.refreshTokens.push({ token: refreshToken, createdAt: new Date() });
+    user.refreshTokens.push({ token: refreshToken});
     await user.save();
 
 
-    res.json({ success: true, data: { accessToken, refreshToken, user } });
+    res.json({
+        success: true,
+        message: 'Đăng nhập thành công',
+        data: {
+        accessToken,
+        refreshToken,
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            address: user.address,
+            avatarUrl: user.avatarUrl,
+            role: user.role,
+            provider: user.provider
+        }
+        }
+    });
 });
 
 exports.refresh = asyncHandler(async (req, res) => {
@@ -103,6 +136,14 @@ exports.changePassword = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Mật khẩu đã được thay đổi thành công' });
 });
 
+exports.forgitPassword = asyncHandler(async (req, res) => {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ success: false, message: 'Không tìm thấy người dùng với email này' });
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ success: true, message: 'Mật khẩu đã được đặt lại thành công' });
+});
 
 exports.googleOAuth = asyncHandler(async (req, res) => {
     let profile;

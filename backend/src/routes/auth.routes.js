@@ -8,7 +8,6 @@ const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 
 
-
 routes.post('/register',
     body('name').notEmpty().withMessage('Name là bắt buộc'),
     body('email').isEmail().withMessage('Email hợp lệ là bắt buộc'),
