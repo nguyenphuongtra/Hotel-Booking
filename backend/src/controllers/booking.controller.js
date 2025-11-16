@@ -98,6 +98,7 @@ exports.updateBookingStatus = asyncHandler(async (req, res) => {
     await booking.save();
     res.json({ success: true, booking });
 });
+
 exports.deleteBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findByIdAndDelete(id);

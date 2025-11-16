@@ -66,3 +66,19 @@ exports.listRooms = asyncHandler(async (req, res) => {
     const rooms = await query.skip((page - 1) * limit).limit(Number(limit));
     res.json({ success: true, meta: { total, page: Number(page), limit: Number(limit) }, rooms });
 });
+
+exports.upLoadRommImages = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const room = await Room.findById(id);
+    if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+    if (req.files && req.files.length) {
+        const urls = [];    
+        for (const f of req.files) {
+            const url = await cloudinary.uploadBuffer(f.buffer, 'rooms');
+            urls.push(url);
+        }
+        room.images = room.images.concat(urls);
+        await room.save();
+    }
+    res.json({ success: true, room });
+});

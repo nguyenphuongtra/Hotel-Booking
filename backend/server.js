@@ -18,28 +18,28 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// session middleware needed for Passport to support login sessions (req.login)
 app.use(session({
-  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // set true if serving over HTTPS
+    secure: false, 
     maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));
 
-// initialize passport (OAuth strategies configured in src/config/google.js)
 app.use(passport.initialize());
 app.use(passport.session());
 
 // routes
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/users', require('./src/routes/users.routes'));
+app.use('/api/rooms', require('./src/routes/rooms.routes'));
 app.use('/api/rooms', require('./src/routes/users.routes'));
 app.use('/api/bookings', require('./src/routes/bookings.routes'));
 app.use('/api/coupons', require('./src/routes/coupons.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes'));
+app.use('/api/payments', require('./src/routes/payment.routes'));
 
 // docs
 // app.use('/api/docs', require('./docs/swagger')); 
