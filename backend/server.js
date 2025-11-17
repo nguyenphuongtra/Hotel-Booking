@@ -18,7 +18,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// session middleware needed for Passport to support login sessions (req.login)
 app.use(session({
   secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'your-secret-key',
   resave: false,
@@ -29,9 +28,13 @@ app.use(session({
   }
 }));
 
-// initialize passport (OAuth strategies configured in src/config/google.js)
 app.use(passport.initialize());
 app.use(passport.session());
+
+// root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Hotel Booking API is running', version: '1.0.0' });
+});
 
 // routes
 app.use('/api/auth', require('./src/routes/auth.routes'));
@@ -39,10 +42,10 @@ app.use('/api/users', require('./src/routes/users.routes'));
 app.use('/api/rooms', require('./src/routes/users.routes'));
 app.use('/api/bookings', require('./src/routes/bookings.routes'));
 app.use('/api/coupons', require('./src/routes/coupons.routes'));
+app.use('/api/contacts', require('./src/routes/contact.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes'));
-
 // docs
-// app.use('/api/docs', require('./docs/swagger')); 
+// app.use('/api/docs', require('./docs/swagger'));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
