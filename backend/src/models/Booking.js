@@ -8,6 +8,7 @@ const bookingSchema = new mongoose.Schema({
   adults: Number,
   children: Number,
   price: Number,
+  phoneNumber: String,
   coupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
   status: { type: String, enum: ['pending','confirmed','cancelled','completed'], default: 'pending' },
   paymentMethod: { type: String, enum: ['cash','momo','vnpay','card'] },

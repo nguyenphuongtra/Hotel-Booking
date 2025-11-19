@@ -88,8 +88,9 @@ exports.vnpay_return = async (req, res) => {
     if (secureHash === signed) {
         const bookingId = vnp_Params['vnp_TxnRef'];
         const rspCode = vnp_Params['vnp_ResponseCode'];
+        const vnpTransactionStatus = vnp_Params['vnp_TransactionStatus'];
+        
         // Kiem tra du lieu co hop le khong, cap nhat trang thai booking va gui ket qua cho VNPAY
-        // res.status(200).json({ code: rspCode, message: 'success' })
         if(rspCode == '00'){
             try {
                 await Booking.findByIdAndUpdate(
@@ -100,8 +101,15 @@ exports.vnpay_return = async (req, res) => {
             } catch (err) {
                 console.error('Failed to update booking from return:', err);
             }
-            res.redirect(`${process.env.CLIENT_URL}/success`);
+            // Redirect to frontend success page with query params
+            const params = new URLSearchParams({
+                vnp_ResponseCode: rspCode,
+                vnp_TransactionStatus: vnpTransactionStatus || rspCode,
+                vnp_TxnRef: bookingId
+            });
+            res.redirect(`${process.env.CLIENT_URL}/success?${params.toString()}`);
         } else {
+            // Payment failed - redirect to home
             res.redirect(`${process.env.CLIENT_URL}/`);
         }
     } else {

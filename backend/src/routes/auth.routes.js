@@ -46,14 +46,22 @@ routes.get('/google/callback', (req, res, next) => {
       id: user._id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.role || 'user',
       avatar: user.avatar,
     },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 
-  res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+  const userData = encodeURIComponent(JSON.stringify({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role || 'user',
+    avatar: user.avatar || null,
+  }));
+
+  res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}&user=${userData}`);
 });
 
 module.exports = routes;
