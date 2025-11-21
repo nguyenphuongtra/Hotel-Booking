@@ -1,13 +1,15 @@
+// src/contexts/AuthContext.tsx
+
 import {
   createContext,
   useContext,
   useState,
   useEffect,
-  ReactNode,
   useCallback,
 } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { authAPI, userAPI } from '../api/api'
+import type { ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { authAPI } from '../api/api'
 import toast from 'react-hot-toast'
 
 interface User {
@@ -28,6 +30,7 @@ interface AuthContextType {
   logout: () => void
   register: (name: string, email: string, password: string) => Promise<void>
   setUser: (user: User | null) => void
+  setAuthState: (token: string, user: User) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -38,125 +41,97 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true)
   const queryClient = useQueryClient()
 
-  // Fetch user profile
-  const { data: userProfile, isLoading: isUserLoading } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: async () => {
-      const response = await userAPI.getCurrentUser()
-      return response.data.data as User
-    },
-    enabled: !!token,
-    retry: false,
-    staleTime: 5 * 60 * 1000,
-  })
+  const applyAuthState = useCallback((newToken: string, newUser: User) => {
+    localStorage.setItem('token', newToken)
+    localStorage.setItem('user', JSON.stringify(newUser))
+    setToken(newToken)
+    setUser(newUser)
+  }, [])
 
-  // Set user when profile is fetched
-  useEffect(() => {
-    if (userProfile) {
-      setUser(userProfile)
-    }
-  }, [userProfile])
-
-  // Initialize auth from localStorage
+  // Khởi tạo auth từ localStorage khi app load
   useEffect(() => {
     const storedToken = localStorage.getItem('token')
     const storedUser = localStorage.getItem('user')
 
-    if (storedToken) {
-      setToken(storedToken)
-    }
-
-    if (storedUser) {
+    if (storedToken && storedUser) {
       try {
-        setUser(JSON.parse(storedUser))
+        applyAuthState(storedToken, JSON.parse(storedUser))
       } catch (error) {
-        console.error('Failed to parse stored user', error)
+        console.error('Lỗi parse user từ localStorage:', error)
         localStorage.removeItem('user')
       }
     }
 
     setIsLoading(false)
-  }, [])
+  }, [applyAuthState])
 
   const login = useCallback(async (email: string, password: string) => {
     try {
       const response = await authAPI.login({ email, password })
       const { token: newToken, user: newUser } = response.data.data
 
-      // Store token and user
-      localStorage.setItem('token', newToken)
-      localStorage.setItem('user', JSON.stringify(newUser))
+      applyAuthState(newToken, newUser)
 
-      setToken(newToken)
-      setUser(newUser)
-
-      // Invalidate and refetch user query
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-
-      toast.success('Login successful!')
+      toast.success('Đăng nhập thành công!')
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed'
+      const message = error.response?.data?.message || 'Email hoặc mật khẩu không đúng'
       toast.error(message)
       throw error
     }
-  }, [queryClient])
+  }, [applyAuthState])
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     try {
       const response = await authAPI.register({ name, email, password })
       const { token: newToken, user: newUser } = response.data.data
 
-      // Store token and user
-      localStorage.setItem('token', newToken)
-      localStorage.setItem('user', JSON.stringify(newUser))
+      applyAuthState(newToken, newUser)
 
-      setToken(newToken)
-      setUser(newUser)
-
-      // Invalidate and refetch user query
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-
-      toast.success('Registration successful!')
+      toast.success('Đăng ký thành công! Chào mừng bạn!')
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registration failed'
+      const message = error.response?.data?.message || 'Đăng ký thất bại'
       toast.error(message)
       throw error
     }
-  }, [queryClient])
+  }, [applyAuthState])
 
   const logout = useCallback(() => {
-    // Clear storage
+    // Xóa hết
     localStorage.removeItem('token')
     localStorage.removeItem('user')
 
-    // Clear state
     setToken(null)
     setUser(null)
 
-    // Clear queries
+    // Xóa cache (nếu dùng react-query ở nơi khác)
     queryClient.clear()
 
-    toast.success('Logged out successfully')
+    toast.success('Đã đăng xuất')
   }, [queryClient])
 
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!token && !!user,
-    isLoading: isLoading || isUserLoading,
+    isLoading,
     login,
     logout,
     register,
     setUser,
+    setAuthState: applyAuthState,
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within AuthProvider')
+  if (!context) {
+    throw new Error('useAuth phải được dùng trong AuthProvider')
   }
   return context
 }

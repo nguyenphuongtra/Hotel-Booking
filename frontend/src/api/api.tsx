@@ -190,8 +190,11 @@ export const paymentAPI = {
   // Create VNPay payment URL
   createPaymentUrl: (data: {
     amount: number;
-    orderId: string;
+    bookingId: string;
     orderDescription?: string;
+    bankCode?: string;
+    orderType?: string;
+    language?: string;
     [key: string]: any;
   }) =>
     apiClient.post('/payments/create_payment_url', data),
@@ -210,7 +213,7 @@ export const paymentAPI = {
 // ============================================================================
 
 export const adminAPI = {
-  // Admin-specific endpoints (using userAPI and roomAPI for operations)
+  // Get dashboard statistics
 };
 
 // ============================================================================

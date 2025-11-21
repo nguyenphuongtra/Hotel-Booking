@@ -75,7 +75,7 @@ export default function Header() {
                     </Link>
                     {user.role === 'admin' && (
                       <Link
-                        to="/admin"
+                        to="/admin/dashboard"
                         className="flex items-center gap-2 px-4 py-2 text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition font-semibold"
                         onClick={() => setIsProfileOpen(false)}
                       >

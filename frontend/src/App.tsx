@@ -5,12 +5,21 @@ import { Toaster } from 'react-hot-toast'
 
 import Layout from './components/Layout/Layout'
 import { AuthProvider } from './contexts/AuthContext'
+import { ProtectedRoute } from './contexts/ProtectedRoute'
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home').catch(() => ({ default: () => <div className="text-center py-20">Home Page</div> })))
 const Rooms = lazy(() => import('./pages/Rooms').catch(() => ({ default: () => <div className="text-center py-20">Rooms Page</div> })))
 const Bookings = lazy(() => import('./pages/Bookings').catch(() => ({ default: () => <div className="text-center py-20">Bookings Page</div> })))
 const Contact = lazy(() => import('./pages/Contact').catch(() => ({ default: () => <div className="text-center py-20">Contact Page</div> })))
+const LoginPage = lazy(() => import('./pages/LoginPage').catch(() => ({ default: () => <div className="text-center py-20">Login Page</div> })))
+const RegisterPage = lazy(() => import('./pages/RegisterPage').catch(() => ({ default: () => <div className="text-center py-20">Register Page</div> })))
+const OAuthSuccess = lazy(() => import('./pages/auth/OAuthSuccess').catch(() => ({ default: () => <div className="text-center py-20">OAuth Success Page</div> })))
+const RoomDetails = lazy(() => import('./pages/RoomDetails').catch(() => ({ default: () => <div className="text-center py-20">Room Details Page</div> })))
+const PaymentPage = lazy(() => import('./pages/PaymentPage').catch(() => ({ default: () => <div className="text-center py-20">Payment Page</div> })))
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess').catch(() => ({ default: () => <div className="text-center py-20">Payment Success Page</div> })))
+const VnpayReturn = lazy(() => import('./pages/VnpayReturn').catch(() => ({ default: () => <div className="text-center py-20">VNPay Return Page</div> })))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').catch(() => ({ default: () => <div className="text-center py-20">Admin Dashboard</div> })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +49,14 @@ function App() {
                   <Route path="/rooms" element={<Rooms />} />
                   <Route path="/bookings" element={<Bookings />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/oauth-success" element={<OAuthSuccess />} />
+                  <Route path="/rooms/:roomId" element={<RoomDetails />} />
+                  <Route path="/booking" element={<PaymentPage />} />
+                  <Route path="/success" element={<PaymentSuccess />} />
+                  <Route path="/vnpay_return" element={<VnpayReturn />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard viewMode='desktop' />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
