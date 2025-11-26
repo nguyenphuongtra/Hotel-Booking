@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Package, DollarSign } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { ChartTooltip } from '../components/ui/ChartTooltip';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { userAPI } from '../api/api';
 import { bookingAPI } from '../api/api';
 import { roomAPI } from '../api/api';
 import { LoadingState } from '../components/ui/LoadingState';
 import { ErrorState } from '../components/ui/ErrorState';
+import { AdminSidebar } from '../components/admin/AdminSidebar';
 
 interface AdminDashboardProps {
   viewMode: 'desktop' | 'mobile';
@@ -45,25 +47,25 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         
         const dashboardStats = [
           {
-            title: 'Total Revenue',
+            title: 'Tổng doanh thu',
             value: `₫${totalRevenue.toLocaleString()}`,
             icon: DollarSign,
             color: 'bg-green-100 text-green-600'
           },
           {
-            title: 'Total Bookings',
+            title: 'Tổng số đặt phòng',
             value: totalBookings,
             icon: Package,
             color: 'bg-blue-100 text-blue-600'
           },
           {
-            title: 'New Customers',
+            title: 'Khách hàng mới',
             value: newCustomers,
             icon: Users,
             color: 'bg-purple-100 text-purple-600'
           },
           {
-            title: 'Occupancy Rate',
+            title: 'Tỷ lệ phòng đã đặt',
             value: `${occupancyRate}%`,
             icon: TrendingUp,
             color: 'bg-orange-100 text-orange-600'
@@ -71,7 +73,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         ];
         setStats(dashboardStats);
         
-        // Process revenue data
         const monthlyData = bookings.reduce((acc: any, booking: any) => {
           const month = new Date(booking.checkIn).toLocaleString('default', { month: 'short' });
           if (!acc[month]) {
@@ -83,7 +84,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         }, {});
         setRevenueData(Object.values(monthlyData));
         
-        // Process room type data
         const roomTypeCounts = bookings.reduce((acc: any, booking: any) => {
           const roomType = booking.room?.type || 'Unknown';
           if (!acc[roomType]) {
@@ -125,21 +125,15 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
   }
 
   return (
-    <div className={`${containerWidth} mx-auto p-4 md:p-8 bg-gray-50`}>
-      {/* Annotation */}
-      <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-        <h4 className="text-purple-900 mb-2">📊 Admin Dashboard Statistics</h4>
-        <p className="text-sm text-purple-700">
-          <strong>Features:</strong> Real-time stats • Revenue charts • Booking analytics • Occupancy tracking • Recent activity
-        </p>
-      </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <div className={`flex-1 ${viewMode === 'mobile' ? 'p-4' : 'p-8'} ${containerWidth} mx-auto overflow-y-auto`}>
+        <div className="mb-8">
+          <h1>Dashboard Overview</h1>
+          <p className="text-gray-600">Chào mừng trở lại, Quản trị viên! Đây là những gì đang diễn ra với khách sạn của bạn.</p>
+        </div>
 
-      <div className="mb-8">
-        <h1>Dashboard Overview</h1>
-        <p className="text-gray-600">Welcome back, Admin! Here's what's happening with your hotel.</p>
-      </div>
-
-      {/* Stats Cards */}
+        {/* Stats Cards */}
       <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'} gap-6 mb-8`}>
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -167,7 +161,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         {/* Revenue Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Revenue Over Time</CardTitle>
+            <CardTitle>Doanh thu theo thời gian</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -187,7 +181,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         {/* Bookings Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Bookings by Month</CardTitle>
+            <CardTitle>Đặt phòng theo tháng</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -196,7 +190,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip />
+                  <ChartTooltip />
                   <Bar dataKey="bookings" fill="#8b5cf6" />
                 </BarChart>
               </ResponsiveContainer>
@@ -210,7 +204,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         {/* Room Type Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Bookings by Room Type</CardTitle>
+            <CardTitle>Đặt phòng theo loại phòng</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -240,7 +234,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         {/* Recent Bookings */}
         <Card className="col-span-2">
           <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
+            <CardTitle>Danh sách đặt phòng gần đây</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -269,6 +263,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

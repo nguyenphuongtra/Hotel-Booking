@@ -35,3 +35,4 @@ export function RoomHeader({ room, nightlyPrice }: RoomHeaderProps) {
   )
 }
 
+

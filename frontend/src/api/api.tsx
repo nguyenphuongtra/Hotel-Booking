@@ -220,6 +220,19 @@ export const adminAPI = {
 // UTILITY FUNCTIONS
 // ============================================================================
 
+export const reviewsAPI = {
+  // Submit a review for a room
+  submitReview: (roomId: string, data: { rating: number; comment?: string }) =>
+    apiClient.post(`/reviews/rooms/${roomId}`, data),
+  
+  // Get reviews for a room
+  getReviewsByRoom: (roomId: string) =>
+    apiClient.get(`/reviews/rooms/${roomId}`),
+
+  deleteReview: (reviewId: string) =>
+    apiClient.delete(`/reviews/${reviewId}`),
+};
+
 // Set authentication token
 export const setAuthToken = (token: string) => {
   if (token) {

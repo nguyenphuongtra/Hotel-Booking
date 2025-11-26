@@ -39,3 +39,4 @@ export function RoomSpecs({ room }: RoomSpecsProps) {
   )
 }
 
+

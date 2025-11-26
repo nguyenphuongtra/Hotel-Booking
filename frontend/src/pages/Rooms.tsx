@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { roomAPI } from '../api/api';
 import { Link } from 'react-router-dom';
 import { Search, SlidersHorizontal, Star, Wifi, Tv, Coffee, Car, Grid, List } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
@@ -45,9 +47,18 @@ export default function Rooms() {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [sort, setSort] = useState('popularity');
   const [page, setPage] = useState(1);
+  const [checkIn, setCheckIn] = useState<Date | null>(null);
+  const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
 
   // Reset page về 1 mỗi khi filter/search thay đổi
   React.useEffect(() => { setPage(1); }, [search, selectedTypes, selectedAmenities, price]);
+
+  const handleSearch = () => {
+    // Implement your search logic here, e.g., navigate to a new page with search params or refetch rooms
+    console.log({ checkIn, checkOut, adults, children });
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -105,6 +116,7 @@ export default function Rooms() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 bg-gray-50 min-h-screen">
+      
       {/* Search + filters */}
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         {/* Sidebar */}

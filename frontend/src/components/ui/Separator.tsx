@@ -12,3 +12,4 @@ export function Separator({ className = '', orientation = 'horizontal' }: Separa
   return <hr className={`border-0 border-t border-gray-200 ${className}`} />
 }
 
+

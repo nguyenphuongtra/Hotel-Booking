@@ -1,14 +1,17 @@
+import React from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
 interface ProtectedRouteProps {
   element: React.ReactElement
   requiredRole?: 'user' | 'admin'
+  [key: string]: any // Allow arbitrary props
 }
 
-export const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ element, requiredRole, ...rest }: ProtectedRouteProps) => {
   const { isAuthenticated, user, isLoading } = useAuth()
 
+  // Vẫn đang load auth state từ localStorage
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -17,13 +20,18 @@ export const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) =
     )
   }
 
-  if (!isAuthenticated) {
+  // Chưa đăng nhập
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
+  // Có yêu cầu role cụ thể nhưng user không đủ quyền
+  if (requiredRole && user.role !== requiredRole) {
+    // Nếu là user thường cố vào admin → về trang chủ
+    // Nếu là admin cố vào trang user-only (hiếm) → cũng về trang chủ
     return <Navigate to="/" replace />
   }
 
-  return element
+  // Đã OK → cho vào
+  return React.cloneElement(element, rest)
 }

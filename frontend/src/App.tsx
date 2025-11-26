@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import Layout from './components/Layout/Layout'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './contexts/ProtectedRoute'
+import { AdminLayout } from './components/Layout/AdminLayout'
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home').catch(() => ({ default: () => <div className="text-center py-20">Home Page</div> })))
@@ -20,6 +21,9 @@ const PaymentPage = lazy(() => import('./pages/PaymentPage').catch(() => ({ defa
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess').catch(() => ({ default: () => <div className="text-center py-20">Payment Success Page</div> })))
 const VnpayReturn = lazy(() => import('./pages/VnpayReturn').catch(() => ({ default: () => <div className="text-center py-20">VNPay Return Page</div> })))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').catch(() => ({ default: () => <div className="text-center py-20">Admin Dashboard</div> })))
+const AdminUsers = lazy(() => import('./pages/AdminUsers').then(module => ({ default: module.AdminUsers })).catch(() => ({ default: () => <div className="text-center py-20">Admin Users</div> })))
+const AdminRooms = lazy(() => import('./pages/AdminRooms').then(module => ({ default: module.AdminRooms })).catch(() => ({ default: () => <div className="text-center py-20">Admin Rooms</div> })))
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,9 +60,13 @@ function App() {
                   <Route path="/booking" element={<PaymentPage />} />
                   <Route path="/success" element={<PaymentSuccess />} />
                   <Route path="/vnpay_return" element={<VnpayReturn />} />
-                  <Route path="/admin/dashboard" element={<AdminDashboard viewMode='desktop' />} />
-                  <Route path="*" element={<NotFound />} />
                 </Route>
+                <Route path='/admin' element={<ProtectedRoute requiredRole="admin" element={<AdminLayout />} />}>
+                  <Route path='dashboard' element={<AdminDashboard viewMode={'desktop'} />} />
+                  <Route path='users' element={<AdminUsers viewMode={'desktop'} />} />
+                  <Route path='rooms' element={<AdminRooms viewMode="desktop" />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </div>
