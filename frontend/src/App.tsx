@@ -9,7 +9,9 @@ import { ProtectedRoute } from './contexts/ProtectedRoute'
 import { AdminLayout } from './components/Layout/AdminLayout'
 
 // Lazy load pages
+
 const Home = lazy(() => import('./pages/Home').catch(() => ({ default: () => <div className="text-center py-20">Home Page</div> })))
+const Blog = lazy(() => import('./pages/Blog').catch(() => ({ default: () => <div className="text-center py-20">Blog Page</div> })))
 const Rooms = lazy(() => import('./pages/Rooms').catch(() => ({ default: () => <div className="text-center py-20">Rooms Page</div> })))
 const Bookings = lazy(() => import('./pages/Bookings').catch(() => ({ default: () => <div className="text-center py-20">Bookings Page</div> })))
 const Contact = lazy(() => import('./pages/Contact').catch(() => ({ default: () => <div className="text-center py-20">Contact Page</div> })))
@@ -58,6 +60,7 @@ function App() {
                   <Route path="/oauth-success" element={<OAuthSuccess />} />
                   <Route path="/rooms/:roomId" element={<RoomDetails />} />
                   <Route path="/booking" element={<PaymentPage />} />
+                  <Route path="/blog" element={<Blog/>}/>
                   <Route path="/success" element={<PaymentSuccess />} />
                   <Route path="/vnpay_return" element={<VnpayReturn />} />
                 </Route>

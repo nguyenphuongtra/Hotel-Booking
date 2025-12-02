@@ -38,7 +38,7 @@ export default function Header() {
           <nav className="hidden md:flex gap-8">
             <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Trang chủ</Link>
             <Link to="/rooms" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Phòng</Link>
-            <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Blog</Link>
+            <Link to="/blog" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Blog</Link>
             <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Liên hệ</Link>
           </nav>
 
@@ -117,7 +117,7 @@ export default function Header() {
           <nav className="flex flex-col gap-4 pb-4 md:hidden">
             <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500" onClick={() => setIsOpen(false)}>Trang chủ</Link>
             <Link to="/rooms" className="text-gray-700 dark:text-gray-300 hover:text-orange-500" onClick={() => setIsOpen(false)}>Phòng</Link>
-            <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500" onClick={() => setIsOpen(false)}>Blog</Link>
+            <Link to="/blog" className="text-gray-700 dark:text-gray-300 hover:text-orange-500" onClick={() => setIsOpen(false)}>Blog</Link>
             <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-500" onClick={() => setIsOpen(false)}>Liên hệ</Link>
             {!isAuthenticated && (
               <Link to="/login" className="text-orange-500 font-semibold" onClick={() => setIsOpen(false)}>Đăng nhập</Link>
