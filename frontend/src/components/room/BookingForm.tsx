@@ -149,7 +149,7 @@ export function BookingForm({
 
         <Button
           size="lg"
-          className="w-full text-lg py-7 font-bold text-white bg-gradient-to-r from-orange-500 to-pink-600 hover:from-orange-600 hover:to-pink-700 shadow-lg"
+          className="w-full text-lg py-7 font-bold text-white bg-slate-900 shadow-lg"
           onClick={handleBooking}
           disabled={!checkIn || !checkOut || isDateUnavailable}
         >

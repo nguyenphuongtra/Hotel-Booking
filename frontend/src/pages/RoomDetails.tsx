@@ -1,15 +1,18 @@
-// src/pages/RoomDetails.tsx
 import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { roomAPI } from '../api/api'
 import { useAuth } from '../contexts/AuthContext'
+
+// Components
 import { RoomImageGallery } from '../components/room/RoomImageGallery'
 import { RoomHeader } from '../components/room/RoomHeader'
 import { RoomDescription } from '../components/room/RoomDescription'
 import { Amenities } from '../components/room/Amenities'
 import { RoomSpecs } from '../components/room/RoomSpecs'
 import { RoomReviews } from '../components/room/RoomReviews'
+import { ReviewForm } from '../components/room/ReviewForm'
+import { SuggestedRooms } from '../components/room/SuggestedRooms'
 import { BookingForm } from '../components/room/BookingForm'
 import { Breadcrumb } from '../components/room/Breadcrumb'
 import { LoadingState } from '../components/ui/LoadingState'
@@ -24,8 +27,11 @@ interface RoomReview {
 }
 
 interface Booking {
+  _id?: string
+  userId?: string
   checkIn: string
   checkOut: string
+  status?: string
 }
 
 interface Room {
@@ -45,8 +51,7 @@ interface Room {
 export default function RoomDetails() {
   const { roomId } = useParams()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
-
+  const { user, isAuthenticated } = useAuth()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['room-detail', roomId],
@@ -59,10 +64,10 @@ export default function RoomDetails() {
   const reviews = room?.reviews ?? []
   const bookings: Booking[] = room?.bookings || []
 
-  // Tính toán ngày đã đặt
   const bookedDates = useMemo(() => {
     const dates = new Set<string>()
     bookings.forEach(booking => {
+      if (booking.status === 'cancelled') return 
       const start = new Date(booking.checkIn)
       const end = new Date(booking.checkOut)
       for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
@@ -71,6 +76,19 @@ export default function RoomDetails() {
     })
     return dates
   }, [bookings])
+
+  const canReview = useMemo(() => {
+    if (!isAuthenticated || !user || !bookings) return false
+    
+    // Logic: User phải có booking đã hoàn thành
+    const hasCompletedBooking = bookings.some(booking => {
+      const isUserBooking = booking.userId === user.id || booking.userId === user.id
+      const isCompleted = new Date(booking.checkOut) < new Date()
+      return isUserBooking && isCompleted
+    })
+
+    return hasCompletedBooking
+  }, [isAuthenticated, user, bookings])
 
   const nightlyPrice = room?.price ?? 0
 
@@ -107,33 +125,84 @@ export default function RoomDetails() {
   const maxChildren = room.occupancy?.children || 0
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-gray-50">
-      <Breadcrumb roomName={room.name} />
+    <div className="bg-gray-50 min-h-screen pb-12">
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <Breadcrumb roomName={room.name} />
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left: Images + Info */}
-        <div className="flex-1">
-          <RoomImageGallery images={images} roomName={room.name} />
-          <div className="mt-8 bg-white rounded-2xl shadow-sm p-6 md:p-8">
-            <RoomHeader room={room} nightlyPrice={nightlyPrice} />
-            <hr className="my-8 border-gray-200" />
-            <RoomDescription description={room.description} />
-            <Amenities amenities={room.amenities} />
-            <RoomSpecs room={room} />
-            <RoomReviews reviews={reviews} />
+        <div className="flex flex-col lg:flex-row gap-8 relative">
+          <div className="flex-1 min-w-0">
+            <RoomImageGallery images={images} roomName={room.name} />
+            
+            <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+              <RoomHeader room={room} nightlyPrice={nightlyPrice} />
+              
+              <hr className="my-8 border-gray-100" />
+              
+              <RoomDescription description={room.description} />
+              <Amenities amenities={room.amenities} />
+              <RoomSpecs room={room} />
+              
+              <hr className="my-8 border-gray-100" />
+              
+              <div id="reviews">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Đánh giá từ khách hàng</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl font-bold text-gray-900">
+                       {reviews.length > 0 
+                         ? (reviews.reduce((acc, cur) => acc + (cur.rating || 0), 0) / reviews.length).toFixed(1)
+                         : '0.0'}
+                    </span>
+                    <div className="text-sm text-gray-500 text-right">
+                      <div>trên 5</div>
+                      <div>{reviews.length} đánh giá</div>
+                    </div>
+                  </div>
+                </div>
+
+                {canReview ? (
+                  <ReviewForm roomId={room._id} />
+                ) : isAuthenticated ? (
+                  <div className="bg-blue-50 text-blue-700 p-4 rounded-lg mb-6 text-sm flex items-center gap-2">
+                    <span className="font-semibold">Lưu ý:</span>
+                    Bạn cần hoàn thành kỳ nghỉ tại phòng này mới có thể viết đánh giá.
+                  </div>
+                ) : null}
+
+                <RoomReviews reviews={reviews} />
+              </div>
+            </div>
+
+            <SuggestedRooms currentRoomId={room._id} />
           </div>
-        </div>
 
-        {/* Right: Booking Card */}
-        <div className="w-full lg:w-96 shrink-0">
-          <BookingForm
-            nightlyPrice={nightlyPrice}
-            maxAdults={maxAdults}
-            maxChildren={maxChildren}
-            bookedDates={bookedDates}
-            onBooking={handleBooking}
-            isAuthenticated={isAuthenticated}
-          />
+          <div className="w-full lg:w-96 shrink-0">
+            <div className="lg:sticky lg:top-24 transition-all duration-300">
+              <BookingForm
+                nightlyPrice={nightlyPrice}
+                maxAdults={maxAdults}
+                maxChildren={maxChildren}
+                bookedDates={bookedDates}
+                onBooking={handleBooking}
+                isAuthenticated={isAuthenticated}
+              />
+              
+              <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Đảm bảo giá tốt nhất
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Thanh toán an toàn
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

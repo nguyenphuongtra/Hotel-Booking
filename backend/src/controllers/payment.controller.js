@@ -93,11 +93,12 @@ exports.vnpay_return = async (req, res) => {
         // Kiem tra du lieu co hop le khong, cap nhat trang thai booking va gui ket qua cho VNPAY
         if(rspCode == '00'){
             try {
-                await Booking.findByIdAndUpdate(
+                const updatedBooking = await Booking.findByIdAndUpdate(
                     bookingId,
-                    { $set: { 'paymentInfo.isPaid': true, paymentMethod: 'vnpay', status: 'confirmed' } },
+                    { $set: { 'paymentInfo.isPaid': true, paymentMethod: 'vnpay', paymentStatus: 'paid', status: 'confirmed' } },
                     { new: true }
                 );
+                console.log('✓ Payment Return - Booking updated:', { bookingId, paymentStatus: updatedBooking?.paymentStatus, paymentMethod: updatedBooking?.paymentMethod });
             } catch (err) {
                 console.error('Failed to update booking from return:', err);
             }
@@ -139,11 +140,12 @@ exports.vnpay_ipn = async (req, res) => {
         try {
             if (rspCode == '00') {
                 // Update existing schema fields instead of adding unknown `isPaid`
-                await Booking.findByIdAndUpdate(
+                const updatedBooking = await Booking.findByIdAndUpdate(
                     bookingId,
-                    { $set: { 'paymentInfo.isPaid': true, paymentMethod: 'vnpay', status: 'confirmed' } },
+                    { $set: { 'paymentInfo.isPaid': true, paymentMethod: 'vnpay', paymentStatus: 'paid', status: 'confirmed' } },
                     { new: true }
                 );
+                console.log('✓ Payment IPN - Booking updated:', { bookingId, paymentStatus: updatedBooking?.paymentStatus, paymentMethod: updatedBooking?.paymentMethod });
             }
         } catch (err) {
             // Log but still return success to VNPAY so they don't retry endlessly

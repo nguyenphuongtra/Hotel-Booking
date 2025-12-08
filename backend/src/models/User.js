@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, index: true },
@@ -9,6 +10,7 @@ const userSchema = new mongoose.Schema({
   address: String,
   avatarUrl: String,
   role: { type: String, enum: ['user','admin'], default: 'user' },
+  bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
   isLocked: { type: Boolean, default: false },
   refreshTokens: [{ token: String, createdAt: Date }], 
 }, { timestamps: true });

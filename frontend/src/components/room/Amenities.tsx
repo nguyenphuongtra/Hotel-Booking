@@ -27,19 +27,21 @@ export function Amenities({ amenities }: AmenitiesProps) {
 
   return (
     <div className="mb-10">
-      <h3 className="text-2xl font-bold mb-6">Tiện ích nổi bật</h3>
+      <h3 className="text-2xl font-bold mb-6 text-slate-900">Tiện ích nổi bật</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {list.map((item: string) => {
           const Icon = iconMap[item.toLowerCase()] || Wifi
           return (
             <div
               key={item}
-              className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl"
+              className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
             >
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <Icon className="w-6 h-6 text-orange-600" />
+              {/* ĐỔI MÀU: Nền xám nhạt thay vì cam */}
+              <div className="p-3 bg-slate-100 rounded-lg group-hover:bg-slate-900 transition-colors">
+                {/* ĐỔI MÀU: Icon màu đen/xám đậm thay vì cam */}
+                <Icon className="w-6 h-6 text-slate-900" />
               </div>
-              <span className="font-medium">{item}</span>
+              <span className="font-medium text-slate-700">{item}</span>
             </div>
           )
         })}
@@ -47,5 +49,3 @@ export function Amenities({ amenities }: AmenitiesProps) {
     </div>
   )
 }
-
-

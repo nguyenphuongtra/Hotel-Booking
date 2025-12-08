@@ -31,14 +31,17 @@ export default function Header() {
     <header className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-            Hotel
+          <Link to="/" className="group flex items-center gap-2">
+            <div className="text-3xl font-black text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-100 transition-all duration-300 group-hover:scale-105">
+              Mường Thanh
+            </div>
+            <span className="hidden sm:block text-xs font-semibold text-orange-500 uppercase tracking-widest">Resort</span>
           </Link>
           
           <nav className="hidden md:flex gap-8">
             <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Trang chủ</Link>
             <Link to="/rooms" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Phòng</Link>
-            <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Blog</Link>
+            <Link to="/blogs" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Blog</Link>
             <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition">Liên hệ</Link>
           </nav>
 

@@ -39,7 +39,7 @@ const RoomCard = ({ room }: { room: Room }) => (
 export const SuggestedRooms = ({ currentRoomId }: SuggestedRoomsProps) => {
     const { data, isLoading, error } = useQuery({
         queryKey: ['rooms'],
-        queryFn: () => roomAPI.getAllRooms(),
+        queryFn: () => roomAPI.listRooms(),
     });
 
     if (isLoading) return <LoadingState />;
@@ -56,7 +56,7 @@ export const SuggestedRooms = ({ currentRoomId }: SuggestedRoomsProps) => {
 
     return (
         <div className="mt-12">
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">You might also like</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Danh sách các phòng gợi ý</h2>
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                 {suggestedRooms.map((room) => (
                     <RoomCard key={room._id} room={room} />

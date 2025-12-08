@@ -54,4 +54,13 @@ exports.refreshCurrentUser = asyncHandler(async (req, res) => {
     res.json({ success: true, user });
 });
 
+exports.MyBookings = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId).populate({
+        path : 'bookings',
+        populate: { path: 'room coupon' }
+    });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, bookings: user.bookings });
+}); 
 

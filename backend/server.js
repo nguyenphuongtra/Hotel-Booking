@@ -41,6 +41,8 @@ app.use('/api/coupons', require('./src/routes/coupons.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes'));
 app.use('/api/payments', require('./src/routes/payment.routes'));
 app.use('/api/contacts', require('./src/routes/contact.routes'));
+app.use('/api/reviews', require('./src/routes/review.routes'));
+app.use('/api/blogs', require('./src/routes/blog.routes'));
 
 // docs
 // app.use('/api/docs', require('./docs/swagger')); 

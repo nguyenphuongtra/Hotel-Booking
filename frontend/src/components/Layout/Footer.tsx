@@ -48,7 +48,7 @@ export default function Footer() {
                 <MapPin size={18} className="text-orange-400 mt-1 flex-shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-gray-400">Địa chỉ</span>
-                  <span className="text-white font-semibold">Hà Nội, Việt Nam</span>
+                  <span className="text-white font-semibold">Đà Nẵng, Việt Nam</span>
                 </div>
               </div>
             </div>

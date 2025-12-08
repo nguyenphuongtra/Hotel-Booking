@@ -15,7 +15,7 @@ body('checkOut').isISO8601()
 ], validate, bookingController.createBooking);
 
 
-router.get('/me', protect, bookingController.getBookingsForUser);
+router.get('/me', protect, bookingController.getMyBookings);
 router.get('/', protect, authorize('admin'), bookingController.getAllBookings);
 router.get('/:id', protect, bookingController.getBookingById);
 router.delete('/:id', protect, authorize('admin'), bookingController.deleteBooking);

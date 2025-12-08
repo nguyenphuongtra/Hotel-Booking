@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { CreditCard, Smartphone, Wallet, CheckCircle, User, Mail, Phone } from 'lucide-react'
+import { Wallet, CheckCircle, User, Mail, Phone } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
@@ -390,8 +390,12 @@ export default function PaymentPage({ viewMode = 'desktop' }: PaymentPageProps) 
                       htmlFor="momo"
                       className="flex items-center gap-3 flex-1 cursor-pointer"
                     >
-                      <div className="p-2 bg-pink-100 rounded-lg">
-                        <Smartphone className="w-5 h-5 text-pink-600" />
+                      <div className="p-2 bg-white rounded-lg border">
+                        <img 
+                          src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" 
+                          alt="MoMo"
+                          className="w-6 h-6 object-contain"
+                        />
                       </div>
                       <div className="flex-1">
                         <div className="font-medium">Ví MoMo</div>
@@ -415,8 +419,12 @@ export default function PaymentPage({ viewMode = 'desktop' }: PaymentPageProps) 
                       htmlFor="vnpay"
                       className="flex items-center gap-3 flex-1 cursor-pointer"
                     >
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <CreditCard className="w-5 h-5 text-blue-600" />
+                      <div className="p-2 bg-white rounded-lg border">
+                        <img 
+                          src="https://stcd02206177151.cloud.edgevnpay.vn/assets/images/logo-icon/logo-primary.svg" 
+                          alt="VNPay"
+                          className="w-6 h-6 object-contain"
+                        />
                       </div>
                       <div className="flex-1">
                         <div className="font-medium">VNPay</div>

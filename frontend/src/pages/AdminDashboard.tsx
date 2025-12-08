@@ -38,7 +38,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         const rooms = roomsRes.data.rooms;
 
         // Process stats
-        const totalRevenue = bookings.reduce((acc: any, booking: any) => acc + booking.price, 0);
+        const totalRevenue = bookings.reduce((acc: any, booking: any) => acc + booking.totalPrice, 0);
         const totalBookings = bookings.length;
         const newCustomers = users.length; // This should be refined based on a creation date
         const confirmedBookings = bookings.filter((b:any) => b.status === 'confirmed').length;
@@ -48,7 +48,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         const dashboardStats = [
           {
             title: 'Tổng doanh thu',
-            value: `₫${totalRevenue.toLocaleString()}`,
+            value: `${(totalRevenue || 0).toLocaleString()}₫`,
             icon: DollarSign,
             color: 'bg-green-100 text-green-600'
           },
@@ -78,7 +78,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
           if (!acc[month]) {
             acc[month] = { month, revenue: 0, bookings: 0 };
           }
-          acc[month].revenue += booking.price;
+          acc[month].revenue += booking.totalPrice;
           acc[month].bookings += 1;
           return acc;
         }, {});
@@ -257,7 +257,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
                       <span className="text-gray-500"> • {booking.room?.name || 'Unknown Room'}</span>
                     </div>
                   </div>
-                  <div className="text-blue-600">{booking.price.toLocaleString()} VNĐ</div>
+                    <div className="text-blue-600">{(booking.totalPrice || 0).toLocaleString()} VNĐ</div>
                 </div>
               ))}
             </div>

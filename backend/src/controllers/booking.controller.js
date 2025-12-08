@@ -5,7 +5,7 @@ const Room = require('../models/Room');
 const Coupon = require('../models/Coupon');
 
 exports.createBooking = asyncHandler(async (req, res) => {
-    const { roomId, checkIn, checkOut, adults, children, couponCode, paymentMethod, price, phoneNumber } = req.body;
+    const { roomId, checkIn, checkOut, adults, children, couponCode, paymentMethod, totalPrice, phoneNumber } = req.body;
 
     // Check if room exists
     const room = await Room.findById(roomId);
@@ -28,7 +28,7 @@ exports.createBooking = asyncHandler(async (req, res) => {
     // Calculate price
     let basePrice = room.price;
     const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
-    let total = price || (basePrice * Math.max(1, nights));
+    let total = totalPrice || (basePrice * Math.max(1, nights));
 
     // Handle coupon if provided
     let coupon = null;
@@ -65,7 +65,7 @@ exports.createBooking = asyncHandler(async (req, res) => {
         checkOut,
         adults,
         children,
-        price: total,
+        totalPrice: total,
         coupon: coupon ? coupon._id : null,
         paymentMethod,
         phoneNumber: phoneNumber,
@@ -75,8 +75,8 @@ exports.createBooking = asyncHandler(async (req, res) => {
     res.status(201).json({ success: true, booking });
 });
 
-exports.getBookingsForUser = asyncHandler(async (req, res) => {
-    const bookings = await Booking.find({ user: req.user._id }).populate('room');
+exports.getMyBookings = asyncHandler(async (req, res) => {
+    const bookings = await Booking.find({ user: req.user._id }).populate('room user');
     res.json({ success: true, bookings });
 });
 exports.getBookingById = asyncHandler(async (req, res) => {
@@ -91,7 +91,9 @@ exports.getBookingById = asyncHandler(async (req, res) => {
 
 // Admin 
 exports.getAllBookings = asyncHandler(async (req, res) => {
-    const bookings = await Booking.find().populate('room user');
+    const bookings = await Booking.find()
+        .populate('room user')
+        .sort({ createdAt: -1 });
     res.json({ success: true, bookings });
 });
 

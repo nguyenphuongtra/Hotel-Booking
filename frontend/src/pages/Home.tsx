@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import DatePicker from 'react-datepicker';
-import { Search, Users, Wifi, Utensils, Shield, Wind } from 'lucide-react';
+import { Search, Users, Wifi, Utensils, Shield, Wind, Component } from 'lucide-react';
 import { roomAPI } from '../api/api'; 
 import { Button } from '../components/ui/Button';
+import FloatingButtons from '../components/ui/FloatingButtons';
+import HotelMap from '../components/Layout/HotelMap';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -53,12 +55,12 @@ export default function Home() {
 
   const bannerSlides = [
     {
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200',
+      image: 'https://images.squarespace-cdn.com/content/v1/5aadf482aa49a1d810879b88/1626698419120-J7CH9BPMB2YI728SLFPN/1.jpg',
       title: 'Khám phá sang trọng',
       subtitle: 'Trải nghiệm không quên tại những khách sạn hàng đầu',
     },
     {
-      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200',
+      image: 'https://acihome.vn/uploads/15/thiet-ke-khach-san-hien-dai-co-cac-ban-cong-view-bien-sieu-dep-seaside-mirage-hotel-1.JPG',
       title: 'Điểm đến tuyệt vời',
       subtitle: 'Những phòng đẹp đang chờ bạn',
     },
@@ -85,7 +87,7 @@ export default function Home() {
   ];
 
   const blogs = [
-    { id: 1, title: 'Top 10 khách sạn tốt nhất Hà Nội 2024', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop', date: '15/11/2024' },
+    { id: 1, title: 'Top 10 khách sạn tốt nhất Đà Nẵng 2025', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop', date: '15/11/2024' },
     { id: 2, title: 'Mẹo đặt phòng khách sạn tiết kiệm chi phí', image: 'https://images.unsplash.com/photo-1542314503-37143e4538a9?w=400&h=250&fit=crop', date: '10/11/2024' },
     { id: 3, title: 'Điểm đến lý tưởng cho kỳ nghỉ gia đình', image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=250&fit=crop', date: '05/11/2024' },
   ];
@@ -344,6 +346,16 @@ export default function Home() {
           Xem tất cả phòng
         </Button>
       </section>
+
+      {/* Google Map */}
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold mb-8">Vị trí khách sạn</h2>
+        <div className="rounded-lg overflow-hidden shadow-lg">
+          <HotelMap />
+        </div>
+      </section>
+
+      <FloatingButtons />
     </div>
   );
 }
