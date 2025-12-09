@@ -10,8 +10,6 @@ import {
   Percent, 
   Users, 
   Copy,
-  CheckCircle,
-  XCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
