@@ -30,7 +30,7 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '../components/ui/Dialog';
+} from '../components/ui/DiaLog';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/Textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
@@ -398,7 +398,7 @@ export function AdminRooms({ viewMode }: AdminRoomsProps) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant='outline'>{room.quantity} phòng</Badge>
+                          <Badge variant='secondary'>{room.quantity} phòng</Badge>
                         </TableCell>
                         <TableCell>
                           <Badge variant={room.status === 'available' ? 'default' : room.status === 'maintenance' ? 'secondary' : 'outline'}>

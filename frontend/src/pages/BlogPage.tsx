@@ -38,7 +38,6 @@ export default function Blogs() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     fetchBlogs();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Lock, Unlock, Shield, User, Trash2, RefreshCw } from 'lucide-react';
+import { Search, Lock, Unlock, Shield, Trash2, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
@@ -186,7 +186,7 @@ export function AdminUsers({ viewMode }: AdminUsersProps) {
                           <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
                             {user.role === 'admin' ? 'Admin' : 'User'}
                           </Badge>
-                          <Badge variant={user.isLocked ? 'destructive' : 'default'}>
+                          <Badge variant={user.isLocked ? 'secondary' : 'default'}>
                             {user.isLocked ? 'Khóa' : 'Hoạt động'}
                           </Badge>
                         </div>
@@ -273,7 +273,7 @@ export function AdminUsers({ viewMode }: AdminUsersProps) {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={user.isLocked ? 'destructive' : 'default'}>
+                          <Badge variant={user.isLocked ? 'secondary' : 'default'}>
                             {user.isLocked ? 'Đã khóa' : 'Hoạt động'}
                           </Badge>
                         </TableCell>
@@ -299,7 +299,7 @@ export function AdminUsers({ viewMode }: AdminUsersProps) {
                             </Button>
                             <Button
                               size="sm"
-                              variant="destructive"
+                              variant="secondary"
                               disabled={actionLoading === user._id}
                               onClick={() => confirmDelete(user)}
                             >

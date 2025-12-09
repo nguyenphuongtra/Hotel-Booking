@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from '../components/ui/Dialog';
+} from '../components/ui/DiaLog';
 import {
   AlertDialog,
   AlertDialogAction,
