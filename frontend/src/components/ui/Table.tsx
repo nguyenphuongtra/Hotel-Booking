@@ -54,8 +54,9 @@ export const TableHead: React.FC<TableHeadProps> = ({ className, ...props }) => 
   />
 );
 
-export interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
+export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
   className?: string;
+  colSpan?: number;
 }
 
 export const TableCell: React.FC<TableCellProps> = ({ className, ...props }) => (

@@ -7,11 +7,6 @@ import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
 import toast from 'react-hot-toast'
 
-interface Booking {
-  checkIn: string
-  checkOut: string
-}
-
 interface BookingFormProps {
   nightlyPrice: number
   maxAdults: number

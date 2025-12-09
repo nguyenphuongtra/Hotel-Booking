@@ -85,15 +85,11 @@ export const roomAPI = {
   getRoom: (roomId: string) =>
     apiClient.get(`/rooms/${roomId}`),
 
-  createRoom: (data: FormData) =>
-    apiClient.post('/rooms', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  createRoom: (data: Record<string, any>) =>
+    apiClient.post('/rooms', data),
 
-  updateRoom: (roomId: string, data: FormData) =>
-    apiClient.put(`/rooms/${roomId}`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  updateRoom: (roomId: string, data: Record<string, any>) =>
+    apiClient.put(`/rooms/${roomId}`, data),
 
   deleteRoom: (roomId: string) =>
     apiClient.delete(`/rooms/${roomId}`),
