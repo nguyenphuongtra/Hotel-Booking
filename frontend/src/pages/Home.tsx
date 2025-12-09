@@ -9,9 +9,9 @@ import { roomAPI } from '../api/api';
 import { Button } from '../components/ui/Button';
 import FloatingButtons from '../components/ui/FloatingButtons';
 import HotelMap from '../components/Layout/HotelMap';
-// import 'swiper/css';
-// import 'swiper/css/navigation';
-// import 'swiper/css/pagination';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface Room {
