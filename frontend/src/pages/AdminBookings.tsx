@@ -4,12 +4,8 @@ import {
   RefreshCw, 
   Calendar, 
   CheckCircle, 
-  XCircle, 
-  Clock, 
   Eye, 
   Trash2, 
-  MoreVertical,
-  Filter
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -38,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../components/ui/Dialog';
+} from '../components/ui/DiaLog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
 import { Label } from '../components/ui/label';
 
