@@ -28,7 +28,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from '../components/ui/Dialog';
+} from '../components/ui/DiaLog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -316,7 +316,7 @@ export function AdminBlogs({ viewMode }: AdminBlogsProps) {
                     ))}
                     {filteredBlogs.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                        <TableCell className="text-center py-8 text-gray-500">
                           Chưa có bài viết nào.
                         </TableCell>
                       </TableRow>
@@ -359,7 +359,6 @@ export function AdminBlogs({ viewMode }: AdminBlogsProps) {
                 className="h-20"
               />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="imageUrl">URL ảnh đại diện</Label>
               <div className="flex items-start gap-4">
@@ -382,7 +381,6 @@ export function AdminBlogs({ viewMode }: AdminBlogsProps) {
                 </div>
               </div>
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="content">Nội dung chi tiết</Label>
               {/* Đây là Textarea cơ bản, có thể thay thế bằng Rich Text Editor như ReactQuill sau này */}
@@ -395,7 +393,6 @@ export function AdminBlogs({ viewMode }: AdminBlogsProps) {
                 required
               />
             </div>
-
             <DialogFooter className="mt-4">
                <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>Hủy</Button>
                <Button type="submit" disabled={actionLoading === 'form'}>
@@ -424,7 +421,6 @@ export function AdminBlogs({ viewMode }: AdminBlogsProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   );
 }

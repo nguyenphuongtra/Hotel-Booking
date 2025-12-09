@@ -4,14 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import DatePicker from 'react-datepicker';
-import { Search, Users, Wifi, Utensils, Shield, Wind, Component } from 'lucide-react';
+import { Search, Users, Wifi, Utensils, Shield, Wind } from 'lucide-react';
 import { roomAPI } from '../api/api'; 
 import { Button } from '../components/ui/Button';
 import FloatingButtons from '../components/ui/FloatingButtons';
 import HotelMap from '../components/Layout/HotelMap';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+// import 'swiper/css';
+// import 'swiper/css/navigation';
+// import 'swiper/css/pagination';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface Room {
