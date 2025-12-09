@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { roomAPI } from '../api/api';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Star, Wifi, Tv, Coffee, Car, Grid, List, Calendar, Users, Minus, Plus, ChevronDown } from 'lucide-react';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -423,7 +422,7 @@ export default function Rooms() {
                   </div>
                   
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {room.amenities?.slice(0, 3).map((am, i) => (
+                    {room.amenities?.slice(0, 3).map((am) => (
                       <Badge key={am} variant="secondary" className="text-xs">
                         {am}
                       </Badge>
