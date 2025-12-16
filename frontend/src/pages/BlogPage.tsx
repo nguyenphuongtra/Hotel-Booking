@@ -11,19 +11,15 @@ import {
 } from 'lucide-react';
 import { blogAPI } from '../api/api';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
 import { LoadingState } from '../components/ui/LoadingState';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '../components/ui/Dialog';
+} from '../components/ui/DiaLog';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { Separator } from '../components/ui/separator';
+import { Separator } from '../components/ui/Separator';
 
 interface Blog {
   _id: string;
@@ -42,7 +38,6 @@ export default function Blogs() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     fetchBlogs();
@@ -286,7 +281,7 @@ export default function Blogs() {
                 <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white">
                    <div className="flex gap-2 mb-3">
                       <Badge className="bg-blue-600 hover:bg-blue-700 border-none">{selectedBlog.category}</Badge>
-                      <Badge variant="outline" className="text-white border-white/40 bg-black/20 backdrop-blur-md">
+                      <Badge className="text-white border-white/40 bg-black/20 backdrop-blur-md">
                         {new Date(selectedBlog.datePorted).toLocaleDateString('vi-VN')}
                       </Badge>
                    </div>

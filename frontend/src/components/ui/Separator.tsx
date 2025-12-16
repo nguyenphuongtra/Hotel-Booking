@@ -1,5 +1,3 @@
-import React from 'react'
-
 export interface SeparatorProps {
   className?: string
   orientation?: 'horizontal' | 'vertical'

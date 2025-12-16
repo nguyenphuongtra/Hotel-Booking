@@ -8,11 +8,6 @@ import { Card, CardContent } from '../ui/Card'
 import toast from 'react-hot-toast'
 import { couponAPI } from '../../api/api'
 
-interface Booking {
-  checkIn: string
-  checkOut: string
-}
-
 interface BookingFormProps {
   nightlyPrice: number
   maxAdults: number

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import DatePicker from 'react-datepicker';
-import { Search, Users, Wifi, Utensils, Shield, Wind, Component } from 'lucide-react';
+import { Search, Users, Wifi, Utensils, Shield, Wind } from 'lucide-react';
 import { roomAPI } from '../api/api'; 
 import { Button } from '../components/ui/Button';
 import FloatingButtons from '../components/ui/FloatingButtons';

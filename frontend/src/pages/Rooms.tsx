@@ -426,7 +426,7 @@ export default function Rooms() {
                   </div>
                   
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {room.amenities?.slice(0, 3).map((am, i) => (
+                    {room.amenities?.slice(0, 3).map((am) => (
                       <Badge key={am} variant="secondary" className="text-xs">
                         {am}
                       </Badge>

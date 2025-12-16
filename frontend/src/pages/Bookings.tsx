@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Clock, Download, Eye, X, CheckCircle, XCircle, AlertCircle, Receipt, Printer } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Clock, Download, X, CheckCircle, XCircle, AlertCircle, Receipt } from 'lucide-react';
 import { bookingAPI } from '../api/api';
 import moment from 'moment';
 
