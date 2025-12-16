@@ -37,10 +37,9 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         const bookings = bookingsRes.data.bookings;
         const rooms = roomsRes.data.rooms;
 
-        // Process stats
         const totalRevenue = bookings.reduce((acc: any, booking: any) => acc + booking.totalPrice, 0);
         const totalBookings = bookings.length;
-        const newCustomers = users.length; // This should be refined based on a creation date
+        const newCustomers = users.length;
         const confirmedBookings = bookings.filter((b:any) => b.status === 'confirmed').length;
         const totalRooms = rooms.reduce((acc: number, room: any) => acc + (room.quantity || 1), 0);
         const occupancyRate = totalRooms > 0 ? ((confirmedBookings / totalRooms) * 100).toFixed(1) : 0;
@@ -99,7 +98,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         });
         setRoomTypeData(Object.values(roomTypeCounts));
 
-        // Process recent bookings
         const sortedBookings = [...bookings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setRecentBookings(sortedBookings.slice(0, 4));
 
@@ -133,7 +131,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
           <p className="text-gray-600">Chào mừng trở lại, Quản trị viên! Đây là những gì đang diễn ra với khách sạn của bạn.</p>
         </div>
 
-        {/* Stats Cards */}
       <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'} gap-6 mb-8`}>
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -156,9 +153,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         })}
       </div>
 
-      {/* Charts Row */}
       <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 mb-8`}>
-        {/* Revenue Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Doanh thu theo thời gian</CardTitle>
@@ -178,7 +173,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* Bookings Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Đặt phòng theo tháng</CardTitle>
@@ -199,9 +193,7 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
         </Card>
       </div>
 
-      {/* Bottom Row */}
       <div className={`grid ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'} gap-6`}>
-        {/* Room Type Distribution */}
         <Card>
           <CardHeader>
             <CardTitle>Đặt phòng theo loại phòng</CardTitle>
@@ -231,7 +223,6 @@ export default function AdminDashboard({ viewMode }: AdminDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* Recent Bookings */}
         <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Danh sách đặt phòng gần đây</CardTitle>

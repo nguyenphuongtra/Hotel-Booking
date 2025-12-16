@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-
+// Xác thực
 exports.protect = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     let token;
-    if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
+    if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];  
     if (!token) return res.status(401).json({ success: false, message: 'Not authorized' });
 
 
@@ -21,9 +21,9 @@ exports.protect = async (req, res, next) => {
     }
 };
 
-
+// Phân quyền
 exports.authorize = (...roles) => (req, res, next) => {
     if (!req.user) return res.status(401).json({ success: false, message: 'Not authorized' });
     if (!roles.includes(req.user.role)) return res.status(403).json({ success: false, message: 'Forbidden' });
     next();
-};
+};  

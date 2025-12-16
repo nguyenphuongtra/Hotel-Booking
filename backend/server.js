@@ -24,7 +24,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: false, 
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    maxAge: 24 * 60 * 60 * 1000 
   }
 }));
 
@@ -44,8 +44,7 @@ app.use('/api/contacts', require('./src/routes/contact.routes'));
 app.use('/api/reviews', require('./src/routes/review.routes'));
 app.use('/api/blogs', require('./src/routes/blog.routes'));
 
-// docs
-// app.use('/api/docs', require('./docs/swagger')); 
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

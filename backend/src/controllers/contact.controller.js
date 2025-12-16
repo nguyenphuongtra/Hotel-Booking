@@ -22,7 +22,6 @@ exports.createContact = async (req, res) => {
   }
 };
 
-// Admin: lấy tất cả liên hệ
 exports.getAllContacts = async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
@@ -32,7 +31,6 @@ exports.getAllContacts = async (req, res) => {
   }
 };
 
-// Admin: xem 1 liên hệ
 exports.getContactById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
@@ -45,7 +43,6 @@ exports.getContactById = async (req, res) => {
   }
 };
 
-// Admin phản hồi và gửi email
 exports.replyContact = async (req, res) => {
   try {
     const { replyMessage } = req.body;
@@ -54,7 +51,6 @@ exports.replyContact = async (req, res) => {
     if (!contact)
       return res.status(404).json({ success: false, message: "Không tìm thấy liên hệ." });
 
-    // Gửi email phản hồi
     await sendReplyEmail(contact.email, "Phản hồi từ khách sạn", replyMessage);
 
     contact.status = "replied";

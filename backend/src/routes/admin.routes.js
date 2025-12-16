@@ -1,6 +1,5 @@
 const express = require('express');
 const routes = express.Router();
-// controller exports use different names (listRooms, getRoom) so alias them to the route expected names
 const { createRoom, listRooms: getRooms, getRoom: getRoomById, updateRoom, deleteRoom } = require('../controllers/room.controller');
 const { body, param } = require('express-validator');
 const validate = require('../middleware/validate');

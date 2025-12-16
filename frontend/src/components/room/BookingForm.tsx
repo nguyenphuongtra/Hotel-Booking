@@ -2,10 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { Calendar, Users, AlertCircle } from 'lucide-react'
+import { Calendar, Users, AlertCircle, Ticket, X, Check } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
 import toast from 'react-hot-toast'
+import { couponAPI } from '../../api/api'
 
 interface Booking {
   checkIn: string
@@ -24,6 +25,7 @@ interface BookingFormProps {
     children: number
     nights: number
     total: number
+    couponCode?: string
   }) => void
   isAuthenticated: boolean
 }
@@ -40,6 +42,9 @@ export function BookingForm({
   const [checkOut, setCheckOut] = useState<Date | null>(null)
   const [guestOption, setGuestOption] = useState('2-0')
   const [isDateUnavailable, setIsDateUnavailable] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
+  const [isLoadingCoupon, setIsLoadingCoupon] = useState(false)
 
   useEffect(() => {
     if (!checkIn || !checkOut) {
@@ -66,9 +71,47 @@ export function BookingForm({
 
   const subtotal = nightlyPrice * nights
   const serviceFee = nightlyPrice ? Math.round(nightlyPrice * 0.1) : 0
-  const total = subtotal + serviceFee
+  
+  // Calculate discount
+  const discount = useMemo(() => {
+    if (!appliedCoupon) return 0
+    if (appliedCoupon.discountType === 'percent') {
+      return Math.round((subtotal + serviceFee) * (appliedCoupon.discountValue / 100))
+    } else {
+      // Fixed amount
+      return appliedCoupon.discountValue
+    }
+  }, [appliedCoupon, subtotal, serviceFee])
+
+  const total = subtotal + serviceFee - discount
 
   const navigate = useNavigate()
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Vui lòng nhập mã giảm giá')
+      return
+    }
+
+    setIsLoadingCoupon(true)
+    try {
+      const response = await couponAPI.getCouponByCode(couponCode.trim())
+      if (response.data.success) {
+        setAppliedCoupon(response.data.coupon)
+        toast.success('Mã giảm giá hợp lệ!')
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Mã giảm giá không hợp lệ')
+      setAppliedCoupon(null)
+    } finally {
+      setIsLoadingCoupon(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode('')
+  }
 
   const handleBooking = () => {
     if (!isAuthenticated) {
@@ -93,6 +136,7 @@ export function BookingForm({
       children,
       nights,
       total,
+      couponCode: appliedCoupon?.code || undefined,
     })
   }
 
@@ -129,6 +173,16 @@ export function BookingForm({
           onChange={setGuestOption}
         />
 
+        {/* Coupon Code Section */}
+        <CouponInput
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          isLoading={isLoadingCoupon}
+          onApply={handleApplyCoupon}
+          appliedCoupon={appliedCoupon}
+          onRemove={handleRemoveCoupon}
+        />
+
         {isDateUnavailable && (
           <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg text-red-700">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -143,7 +197,9 @@ export function BookingForm({
             nightlyPrice={nightlyPrice}
             nights={nights}
             serviceFee={serviceFee}
+            discount={discount}
             total={total}
+            appliedCoupon={appliedCoupon}
           />
         )}
 
@@ -262,14 +318,18 @@ interface PriceBreakdownProps {
   nightlyPrice: number
   nights: number
   serviceFee: number
+  discount: number
   total: number
+  appliedCoupon?: any
 }
 
 function PriceBreakdown({
   nightlyPrice,
   nights,
   serviceFee,
+  discount,
   total,
+  appliedCoupon,
 }: PriceBreakdownProps) {
   return (
     <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl p-6 space-y-4 border border-orange-200">
@@ -285,6 +345,14 @@ function PriceBreakdown({
         <span>Phí dịch vụ</span>
         <span>{serviceFee.toLocaleString('vi-VN')}đ</span>
       </div>
+      {discount > 0 && (
+        <div className="flex justify-between text-green-600 font-semibold">
+          <span>
+            Giảm giá {appliedCoupon?.discountType === 'percent' ? `(${appliedCoupon?.discountValue}%)` : ''}
+          </span>
+          <span>-{discount.toLocaleString('vi-VN')}đ</span>
+        </div>
+      )}
       <hr className="border-dashed border-gray-400" />
       <div className="flex justify-between text-xl font-bold">
         <span>Tổng cộng</span>
@@ -294,3 +362,68 @@ function PriceBreakdown({
   )
 }
 
+interface CouponInputProps {
+  couponCode: string
+  setCouponCode: (code: string) => void
+  isLoading: boolean
+  onApply: () => void
+  appliedCoupon: any
+  onRemove: () => void
+}
+
+function CouponInput({
+  couponCode,
+  setCouponCode,
+  isLoading,
+  onApply,
+  appliedCoupon,
+  onRemove,
+}: CouponInputProps) {
+  return (
+    <div className="space-y-3">
+      <label className="text-sm font-medium flex items-center gap-2">
+        <Ticket className="w-4 h-4" /> Mã giảm giá (Tuỳ chọn)
+      </label>
+      {appliedCoupon ? (
+        <div className="flex items-center justify-between bg-green-50 border-2 border-green-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <Check className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="font-semibold text-green-700">{appliedCoupon.code}</p>
+              <p className="text-xs text-green-600">
+                {appliedCoupon.discountType === 'percent'
+                  ? `Giảm ${appliedCoupon.discountValue}%`
+                  : `Giảm ${appliedCoupon.discountValue.toLocaleString('vi-VN')}đ`}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onRemove}
+            className="p-2 hover:bg-green-100 rounded-lg transition"
+          >
+            <X className="w-5 h-5 text-green-600" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            placeholder="Nhập mã giảm giá"
+            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition"
+            onKeyPress={(e) => e.key === 'Enter' && onApply()}
+            disabled={isLoading}
+          />
+          <Button
+            onClick={onApply}
+            disabled={isLoading || !couponCode.trim()}
+            className="px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold"
+          >
+            {isLoading ? 'Đang kiểm tra...' : 'Áp dụng'}
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}

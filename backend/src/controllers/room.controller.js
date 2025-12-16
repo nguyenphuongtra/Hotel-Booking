@@ -2,7 +2,6 @@ const asyncHandler = require('../middleware/asyncHandler');
 const Room = require('../models/Room');
 const cloudinary = require('../services/cloudinary.service');
 
-// Create a new room
 exports.createRoom = asyncHandler(async (req, res) => {
     const data = req.body;
     if (req.files && req.files.length) {
@@ -47,7 +46,27 @@ exports.getRoom = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const room = await Room.findById(id);
     if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
-    res.json({ success: true, room });
+    
+    const Booking = require('../models/Booking');
+    const Review = require('../models/Review');
+    
+    const bookings = await Booking.find({ room: id }).select('user checkIn checkOut status').lean();
+    const reviews = await Review.find({ room: id }).populate('user', 'name').lean();
+    
+    const bookingsWithUserId = bookings.map(booking => ({
+      ...booking,
+      userId: booking.user?.toString() || booking.user
+    }));
+    
+    const formattedReviews = reviews.map(review => ({
+      _id: review._id,
+      userName: review.user?.name || 'Khách',
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt
+    }));
+    
+    res.json({ success: true, room: { ...room.toObject(), bookings: bookingsWithUserId, reviews: formattedReviews } });
 });
 
 exports.listRooms = asyncHandler(async (req, res) => {

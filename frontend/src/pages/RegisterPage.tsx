@@ -3,12 +3,12 @@ import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Checkbox } from '../components/ui/Checkbox';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -24,8 +24,16 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   // Responsive
   const isMobile = window.innerWidth < 800;
+
+  // Chuyển hướng sau khi đăng ký thành công
+  useEffect(() => {
+    if (shouldRedirect && isAuthenticated) {
+      navigate('/login');
+    }
+  }, [shouldRedirect, isAuthenticated, navigate]);
   const validate = () => {
     const err: any = {};
     if (!form.name) err.name = 'Vui lòng nhập họ tên.';
@@ -49,7 +57,7 @@ export default function RegisterPage() {
     try {
       await register(form.name, form.email, form.password);
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 1500);
+      setShouldRedirect(true);
     } catch (error: any) {
       setGeneralError(error?.response?.data?.message || error?.message || 'Đăng ký thất bại.');
     } finally {

@@ -11,12 +11,12 @@ const { protect, authorize } = require('../middleware/auth');
 
 
 
-routes.post('/:roomId', protect,
+routes.post('/rooms/:roomId', protect,
     body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
     body('comment').optional().isString(),
     validate,
     createOrUpdateReview,
 );
-routes.get('/room/:roomId', getReviewsForRoom);
+routes.get('/rooms/:roomId', getReviewsForRoom);
 routes.delete('/:roomId/:reviewId', protect, deleteReview);
 module.exports = routes;

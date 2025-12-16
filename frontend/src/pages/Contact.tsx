@@ -213,7 +213,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-2xl p-8 shadow-lg text-white">
+              <div className="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-lg p-8 md:p-12 text-center text-white mb-8">
                 <h3 className="text-2xl font-bold mb-4">Cần Hỗ Trợ Nhanh?</h3>
                 <p className="mb-6 text-white/90">Gọi cho chúng tôi ngay để được hỗ trợ tức thì từ nhân viên chuyên nghiệp của chúng tôi.</p>
                 <a href="tel:+84123456789" className="inline-block bg-white text-orange-600 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition">

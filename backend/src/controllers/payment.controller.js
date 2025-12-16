@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const querystring = require('qs');
 const Booking = require('../models/Booking');
+
 function sortObject(obj) {
     let sorted = {};
     let str = [];
@@ -90,7 +91,6 @@ exports.vnpay_return = async (req, res) => {
         const rspCode = vnp_Params['vnp_ResponseCode'];
         const vnpTransactionStatus = vnp_Params['vnp_TransactionStatus'];
         
-        // Kiem tra du lieu co hop le khong, cap nhat trang thai booking va gui ket qua cho VNPAY
         if(rspCode == '00'){
             try {
                 const updatedBooking = await Booking.findByIdAndUpdate(
@@ -102,7 +102,6 @@ exports.vnpay_return = async (req, res) => {
             } catch (err) {
                 console.error('Failed to update booking from return:', err);
             }
-            // Redirect to frontend success page with query params
             const params = new URLSearchParams({
                 vnp_ResponseCode: rspCode,
                 vnp_TransactionStatus: vnpTransactionStatus || rspCode,
@@ -110,7 +109,6 @@ exports.vnpay_return = async (req, res) => {
             });
             res.redirect(`${process.env.CLIENT_URL}/success?${params.toString()}`);
         } else {
-            // Payment failed - redirect to home
             res.redirect(`${process.env.CLIENT_URL}/`);
         }
     } else {
@@ -135,11 +133,8 @@ exports.vnpay_ipn = async (req, res) => {
         let bookingId = vnp_Params['vnp_TxnRef'];
         let rspCode = vnp_Params['vnp_ResponseCode'];
 
-        // Kiem tra du lieu co hop le khong, cap nhat trang thai booking va gui ket qua cho VNPAY
-        // Neu co loi thi khong cap nhat vao db
         try {
             if (rspCode == '00') {
-                // Update existing schema fields instead of adding unknown `isPaid`
                 const updatedBooking = await Booking.findByIdAndUpdate(
                     bookingId,
                     { $set: { 'paymentInfo.isPaid': true, paymentMethod: 'vnpay', paymentStatus: 'paid', status: 'confirmed' } },
@@ -148,7 +143,6 @@ exports.vnpay_ipn = async (req, res) => {
                 console.log('✓ Payment IPN - Booking updated:', { bookingId, paymentStatus: updatedBooking?.paymentStatus, paymentMethod: updatedBooking?.paymentMethod });
             }
         } catch (err) {
-            // Log but still return success to VNPAY so they don't retry endlessly
             console.error('Failed to update booking from IPN:', err);
         }
 

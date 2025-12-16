@@ -20,6 +20,7 @@ const PaymentPage = lazy(() => import('./pages/PaymentPage').catch(() => ({ defa
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess').catch(() => ({ default: () => <div className="text-center py-20">Payment Success Page</div> })))
 const BlogPage = lazy(() => import('./pages/BlogPage').catch(() => ({ default: () => <div className="text-center py-20">Blog Page</div> })))
 const VnpayReturn = lazy(() => import('./pages/VnpayReturn').catch(() => ({ default: () => <div className="text-center py-20">VNPay Return Page</div> })))
+const Profile = lazy(() => import('./pages/Profile').catch(() => ({ default: () => <div className="text-center py-20">Profile Page</div> })))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').catch(() => ({ default: () => <div className="text-center py-20">Admin Dashboard</div> })))
 const AdminUsers = lazy(() => import('./pages/AdminUsers').then(module => ({ default: module.AdminUsers })).catch(() => ({ default: () => <div className="text-center py-20">Admin Users</div> })))
 const AdminRooms = lazy(() => import('./pages/AdminRooms').then(module => ({ default: module.AdminRooms })).catch(() => ({ default: () => <div className="text-center py-20">Admin Rooms</div> })))
@@ -56,6 +57,7 @@ function App() {
                   <Route path="/rooms" element={<Rooms />} />
                   <Route path="/bookings" element={<Bookings />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/oauth-success" element={<OAuthSuccess />} />

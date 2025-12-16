@@ -26,7 +26,6 @@ exports.getCouponByCode = asyncHandler(async (req, res) => {
     if (coupon.endAt && coupon.endAt < now) return res.status(400).json({ success: false, message: 'Coupon expired' });
     if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) return res.status(400).json({ success: false, message: 'Coupon used up' });
 
-    // Map backend fields to frontend expected fields
     const formattedCoupon = {
         ...coupon.toObject(),
         discount: coupon.discountValue,
@@ -36,7 +35,6 @@ exports.getCouponByCode = asyncHandler(async (req, res) => {
 });
 exports.getAllCoupons = asyncHandler(async (req, res) => {
     const coupons = await Coupon.find().sort({ createdAt: -1 });
-    // normalize backend fields to frontend-friendly fields
     const formatted = coupons.map(c => ({
         ...c.toObject(),
         discount: c.discountValue,
@@ -46,7 +44,6 @@ exports.getAllCoupons = asyncHandler(async (req, res) => {
 });
 exports.updateCoupon = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    // support frontend payload fields (discount, type) by mapping to DB fields
     const updatePayload = { ...req.body };
     if (typeof updatePayload.discount !== 'undefined') {
         updatePayload.discountValue = updatePayload.discount;

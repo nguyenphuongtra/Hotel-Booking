@@ -23,6 +23,7 @@ interface BookingState {
   total: number
   pricePerNight: number
   image?: string
+  couponCode?: string
 }
 
 interface PaymentPageProps {
@@ -39,16 +40,13 @@ export default function PaymentPage({ viewMode = 'desktop' }: PaymentPageProps) 
   const [isProcessing, setIsProcessing] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
 
-  // Form fields
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
 
-  // Get booking data from location state
   const bookingData = location.state as BookingState | null
 
-  // Initialize form with user data if available
   useEffect(() => {
     if (user) {
       const nameParts = user.name?.split(' ') || []
@@ -151,6 +149,8 @@ export default function PaymentPage({ viewMode = 'desktop' }: PaymentPageProps) 
         customerEmail: email,
         phoneNumber: phone,
         paymentMethod: paymentMethod,
+        totalPrice: bookingData.total,
+        couponCode: bookingData.couponCode,
       })
 
       // Handle different response structures

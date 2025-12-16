@@ -7,13 +7,11 @@ const Coupon = require('../models/Coupon');
 exports.createBooking = asyncHandler(async (req, res) => {
     const { roomId, checkIn, checkOut, adults, children, couponCode, paymentMethod, totalPrice, phoneNumber } = req.body;
 
-    // Check if room exists
     const room = await Room.findById(roomId);
     if (!room) {
         return res.status(404).json({ success: false, message: 'Room not found' });
     }
 
-    // Check for overlapping bookings
     const overlapCount = await Booking.countDocuments({
         room: roomId,
         status: { $in: ['pending', 'confirmed'] },
@@ -25,12 +23,10 @@ exports.createBooking = asyncHandler(async (req, res) => {
         return res.status(400).json({ success: false, message: 'Không có sẵn cho các ngày đã chọn' });
     }
 
-    // Calculate price
     let basePrice = room.price;
-    const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+    const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)); // tính số đêm
     let total = totalPrice || (basePrice * Math.max(1, nights));
 
-    // Handle coupon if provided
     let coupon = null;
     if (couponCode) {
         coupon = await Coupon.findOne({ code: couponCode, active: true });
@@ -52,12 +48,11 @@ exports.createBooking = asyncHandler(async (req, res) => {
             return res.status(400).json({ success: false, message: 'Phiếu giảm giá đã sử dụng hết' });
         }
 
-        total = total - (total * (coupon.percent || 0) / 100);
-        coupon.usedCount += 1;
+        total = total - (total * (coupon.percent || 0) / 100); // tính toán giảm giá
+        coupon.usedCount += 1; // cập nhật số lần sử dụng
         await coupon.save();
     }
 
-    // Create booking
     const booking = await Booking.create({
         user: req.user._id,
         room: roomId,
@@ -92,8 +87,8 @@ exports.getBookingById = asyncHandler(async (req, res) => {
 // Admin 
 exports.getAllBookings = asyncHandler(async (req, res) => {
     const bookings = await Booking.find()
-        .populate('room user')
-        .sort({ createdAt: -1 });
+        .populate('room user') // chi tiết đặt phòng và người dùng
+        .sort({ createdAt: -1 }); 
     res.json({ success: true, bookings });
 });
 
@@ -102,7 +97,7 @@ exports.updateBookingStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     const booking = await Booking.findById(id);
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
-    booking.status = status;
+    booking.status = status; // Cập nhật trạng thái đặt phòng
     await booking.save();
     res.json({ success: true, booking });
 });

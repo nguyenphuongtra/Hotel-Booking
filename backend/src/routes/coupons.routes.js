@@ -19,7 +19,6 @@ routes.post('/',
     protect,
     authorize('admin'),
     body('code').notEmpty().withMessage('Code is required'),
-    // Accept frontend field names: `type` and `discount` (values: 'percent' or 'fixed')
     body('type').isIn(['percent','fixed']).withMessage('Invalid discount type'),
     body('discount').isFloat({ gt: 0 }).withMessage('Discount value must be greater than 0'),
     validate,

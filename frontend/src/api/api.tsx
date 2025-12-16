@@ -155,7 +155,6 @@ export const couponAPI = {
 
 
 export const paymentAPI = {
-  // Create VNPay payment URL
   createPaymentUrl: (data: {
     amount: number;
     bookingId: string;
@@ -167,11 +166,9 @@ export const paymentAPI = {
   }) =>
     apiClient.post('/payments/create_payment_url', data),
 
-  // Handle VNPay return from payment gateway (usually handled by server redirect)
   vnpayReturn: (params: Record<string, any>) =>
     apiClient.get('/payments/vnpay_return', { params }),
 
-  // Handle VNPay IPN (usually handled by server callback)
   vnpayIPN: (params: Record<string, any>) =>
     apiClient.get('/payments/vnpay_ipn', { params }),
 };

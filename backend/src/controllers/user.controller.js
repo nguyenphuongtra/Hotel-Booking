@@ -6,12 +6,13 @@ exports.getUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password');
     res.json({ success: true, users });
 });
+
 exports.getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, user });
 });
-// Admin
+
 exports.updateUserRole = asyncHandler(async (req, res) => {
     const { role } = req.body;
     const user = await User.findById(req.params.id);

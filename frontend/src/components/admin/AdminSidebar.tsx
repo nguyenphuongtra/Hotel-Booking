@@ -5,7 +5,7 @@ export function AdminSidebar() {
   return (
     <div className="w-64 bg-gray-800 text-white flex flex-col min-h-screen">
       <div className="p-4 text-2xl font-bold border-b border-gray-700">
-        Admin Panel
+        ADMIN
       </div>
       <nav className="flex-1 px-2 py-4 space-y-2">
         <NavLink to="/admin/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" />

@@ -78,17 +78,40 @@ export default function RoomDetails() {
   }, [bookings])
 
   const canReview = useMemo(() => {
-    if (!isAuthenticated || !user || !bookings) return false
+    if (!isAuthenticated || !user || !bookings || bookings.length === 0) {
+      console.log('canReview check failed:', { isAuthenticated, user, bookingsCount: bookings?.length });
+      return false;
+    }
     
-    // Logic: User phải có booking đã hoàn thành
+    // Logic: User phải có booking đã hoàn thành hoặc confirmed
     const hasCompletedBooking = bookings.some(booking => {
-      const isUserBooking = booking.userId === user.id || booking.userId === user.id
-      const isCompleted = new Date(booking.checkOut) < new Date()
-      return isUserBooking && isCompleted
-    })
+      // Kiểm tra booking của user hiện tại
+      const isUserBooking = booking.userId === user.id;
+      // Kiểm tra nếu ngày checkout đã qua (hoàn thành)
+      const checkOutDate = new Date(booking.checkOut);
+      const isCompleted = checkOutDate < new Date();
+      // Kiểm tra booking status (nếu không có status hoặc là confirmed/completed, cho phép)
+      // Exclude cancelled bookings
+      const isValidStatus = booking.status !== 'cancelled';
+      
+      console.log('Booking detail:', { 
+        bookingId: booking._id,
+        bookingUserId: booking.userId,
+        currentUserId: user.id,
+        isUserBooking,
+        checkOutDate: booking.checkOut,
+        isCompleted,
+        status: booking.status,
+        isValidStatus,
+        canComment: isUserBooking && isCompleted && isValidStatus
+      });
+      
+      return isUserBooking && isCompleted && isValidStatus;
+    });
 
-    return hasCompletedBooking
-  }, [isAuthenticated, user, bookings])
+    console.log('Final canReview result:', hasCompletedBooking);
+    return hasCompletedBooking;
+  }, [isAuthenticated, user, bookings]);
 
   const nightlyPrice = room?.price ?? 0
 
@@ -99,6 +122,7 @@ export default function RoomDetails() {
     children: number
     nights: number
     total: number
+    couponCode?: string
   }) => {
     if (!room) return
 
@@ -114,6 +138,7 @@ export default function RoomDetails() {
         total: bookingData.total,
         pricePerNight: nightlyPrice,
         image: images[0],
+        couponCode: bookingData.couponCode,
       }
     })
   }

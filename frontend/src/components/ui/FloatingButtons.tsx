@@ -10,10 +10,8 @@ export default function FloatingButtons({
 }: FloatingButtonsProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // 1. Logic ẩn hiện nút Scroll to Top
   useEffect(() => {
     const handleScroll = () => {
-      // Hiện nút khi cuộn xuống quá 300px
       if (window.scrollY > 300) {
         setShowScrollTop(true);
       } else {
@@ -25,7 +23,6 @@ export default function FloatingButtons({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 2. Hàm cuộn lên đầu trang mượt mà
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,

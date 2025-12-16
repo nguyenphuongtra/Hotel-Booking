@@ -33,14 +33,12 @@ export default function Home() {
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
-  // GỌI API ĐÚNG CÁCH
   const { data: roomsData, isLoading: roomsLoading, error: roomsError } = useQuery({
     queryKey: ['rooms', 'featured'],
     queryFn: () => roomAPI.listRooms({ limit: 6 }),
     retry: false,
   });
 
-  // ĐÚNG: rooms nằm trong response.data.rooms
   const rooms: Room[] = roomsData?.data?.rooms || [];
   const handleSearch = () => {
     if (!checkIn || !checkOut) return;
@@ -81,20 +79,19 @@ export default function Home() {
   ];
 
   const reviews = [
-    { name: 'Nguyễn Văn A', rating: 5, text: 'Dịch vụ tuyệt vời, phòng sạch sẽ!', avatar: 'Male' },
-    { name: 'Trần Thị B', rating: 5, text: 'Nhân viên rất thân thiện và chuyên nghiệp.', avatar: 'Female' },
-    { name: 'Lê Văn C', rating: 4.5, text: 'Vị trí tuyệt vời, gần trung tâm thành phố.', avatar: 'Male' },
+    { name: 'Nguyễn Phương Trà', rating: 5, text: 'Dịch vụ tuyệt vời, phòng sạch sẽ!', avatar: 'Male' },
+    { name: 'Hoàng Huy', rating: 5, text: 'Nhân viên rất thân thiện và chuyên nghiệp.', avatar: 'Female' },
+    { name: 'Tâm', rating: 4.5, text: 'Vị trí tuyệt vời, gần trung tâm thành phố.', avatar: 'Male' },
   ];
 
   const blogs = [
-    { id: 1, title: 'Top 10 khách sạn tốt nhất Đà Nẵng 2025', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop', date: '15/11/2024' },
-    { id: 2, title: 'Mẹo đặt phòng khách sạn tiết kiệm chi phí', image: 'https://images.unsplash.com/photo-1542314503-37143e4538a9?w=400&h=250&fit=crop', date: '10/11/2024' },
-    { id: 3, title: 'Điểm đến lý tưởng cho kỳ nghỉ gia đình', image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=250&fit=crop', date: '05/11/2024' },
+    { id: 1, title: 'Top 10 khách sạn tốt nhất Đà Nẵng 2025', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop', date: '15/11/2025' },
+    { id: 2, title: 'Mẹo đặt phòng khách sạn tiết kiệm chi phí', image: 'https://cafefcdn.com/203337114487263232/2022/7/12/photo-1-1657636131058606327659.jpg ', date: '10/11/2025' },
+    { id: 3, title: 'Điểm đến lý tưởng cho kỳ nghỉ gia đình', image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=250&fit=crop', date: '05/11/2025' },
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4">
-      {/* Banner Slider */}
       <section className="relative -mx-4 mb-12">
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
@@ -259,7 +256,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* Amenities */}
       <section className="mb-16">
         <h2 className="text-3xl font-bold mb-8 text-center">Tiện ích khách sạn</h2>
         <div className="grid md:grid-cols-3 gap-8">
@@ -280,7 +276,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews Carousel */}
       <section className="mb-16 bg-gradient-to-r from-orange-50 to-pink-50 rounded-lg p-8">
         <h2 className="text-3xl font-bold mb-8 text-center">Đánh giá khách hàng</h2>
         <Swiper
@@ -330,7 +325,7 @@ export default function Home() {
               <div className="p-4">
                 <p className="text-sm text-gray-500 mb-2">{blog.date}</p>
                 <h3 className="text-lg font-bold line-clamp-2">{blog.title}</h3>
-                <Button variant="ghost" className="mt-4">
+                <Button variant="ghost" className="mt-4" onClick={() => navigate('/blogs')}>
                   Đọc thêm →
                 </Button>
               </div>
@@ -339,7 +334,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 rounded-lg p-8 md:p-12 text-center text-white mb-8">
+      <section className="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-lg p-8 md:p-12 text-center text-white mb-8">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Sẵn sàng đặt phòng?</h2>
         <p className="text-lg mb-6 opacity-90">Hàng ngàn phòng tuyệt đẹp đang chờ bạn. Đặt ngay hôm nay!</p>
         <Button onClick={() => navigate('/rooms')} size="lg" className="px-8">

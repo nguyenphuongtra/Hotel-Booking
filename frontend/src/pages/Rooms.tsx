@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { roomAPI } from '../api/api';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Star, Wifi, Tv, Coffee, Car, Grid, List, Calendar, Users, Minus, Plus, ChevronDown } from 'lucide-react';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -41,17 +40,17 @@ export default function Rooms() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filter state
-  const [search, setSearch] = useState('');
   const [keyword, setKeyword] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [price, setPrice] = useState<[number, number]>([0, 5_000_000]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [sort, setSort] = useState('popularity');
   const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Search bar state
   const [startDate, setStartDate] = useState(searchParams.get('checkIn') || new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(searchParams.get('checkOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0]);
   const [adults, setAdults] = useState(parseInt(searchParams.get('adults') || '1'));
@@ -59,7 +58,6 @@ export default function Rooms() {
   const [isGuestOpen, setIsGuestOpen] = useState(false);
   const guestRef = useRef<HTMLDivElement>(null);
 
-  // Close guest dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (guestRef.current && !guestRef.current.contains(e.target as Node)) {
@@ -70,14 +68,29 @@ export default function Rooms() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Reset page về 1 mỗi khi filter/search thay đổi
+  // Debounce keyword input
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+      setPage(1);
+    }, 500);
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [keyword]);
+
   React.useEffect(() => { 
     setPage(1); 
-  }, [search, keyword, selectedTypes, selectedAmenities, price, adults, children]);
+  }, [selectedTypes, selectedAmenities, price, adults, children]);
 
   const handleSearch = () => {
-    // Tự động lọc khi người dùng click "Tìm phòng"
-    // Các filter đã được áp dụng qua state, chỉ cần scroll lên đầu trang
+    setPage(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     console.log('Tìm kiếm với:', { startDate, endDate, adults, children });
   };
@@ -86,8 +99,24 @@ export default function Rooms() {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const res = await roomAPI.listRooms();
+        
+        // Build query parameters
+        const params: any = {
+          page: page,
+          limit: PAGE_SIZE
+        };
+        
+        // Add filters
+        if (debouncedKeyword) params.q = debouncedKeyword;
+        if (selectedTypes.length > 0) params.type = selectedTypes[0]; // API takes single type
+        if (selectedAmenities.length > 0) params.amenities = selectedAmenities.join(',');
+        if (price[0] > 0) params.minPrice = price[0];
+        if (price[1] < 5000000) params.maxPrice = price[1];
+        
+        const res = await roomAPI.listRooms(params);
+        console.log('API Response:', res.data);
         setAllRooms(res.data.rooms || []);
+        setTotalCount(res.data.meta?.total || res.data.rooms?.length || 0);
       } catch (e: any) {
         setError(e?.message || 'Không thể tải danh sách phòng.');
       } finally {
@@ -95,40 +124,17 @@ export default function Rooms() {
       }
     };
     fetchRooms();
-  }, []);
+  }, [page, debouncedKeyword, selectedTypes, selectedAmenities, price]);
 
-  // Filter/sort logic
   const filteredRooms = allRooms
     .filter(room => {
-      // Lọc theo giá
-      if (room.price < price[0] || room.price > price[1]) return false;
-      
-      // Lọc theo từ khóa
-      const searchText = (search || keyword).toLowerCase();
-      if (searchText) {
-        const matchName = room.name.toLowerCase().includes(searchText);
-        const matchDesc = room.description?.toLowerCase().includes(searchText);
-        if (!matchName && !matchDesc) return false;
-      }
-      
-      // Lọc theo loại phòng
-      if (selectedTypes.length > 0 && (!room.type || !selectedTypes.includes(room.type))) {
-        return false;
-      }
-      
-      // Lọc theo tiện ích
-      if (selectedAmenities.length > 0 && !selectedAmenities.every(a => room.amenities?.includes(a))) {
-        return false;
-      }
-      
-      // Lọc theo số lượng khách
+      // Filter by occupancy
       const totalGuests = adults + children;
       if (room.occupancy) {
         const maxAdults = room.occupancy.adults || 0;
         const maxChildren = room.occupancy.children || 0;
         const maxTotal = maxAdults + maxChildren;
         
-        // Kiểm tra nếu phòng có thể chứa số lượng khách
         if (totalGuests > maxTotal) return false;
       }
       
@@ -141,11 +147,9 @@ export default function Rooms() {
       return 0;
     });
 
-  // Pagination logic
-  const totalPages = Math.max(1, Math.ceil(filteredRooms.length / PAGE_SIZE));
-  const paginatedRooms = filteredRooms.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+  const paginatedRooms = filteredRooms;
 
-  // Handlers
   const handleAmenity = (id: string) => {
     setSelectedAmenities(arr => arr.includes(id) ? arr.filter(a => a !== id) : [...arr, id]);
   };
@@ -153,10 +157,9 @@ export default function Rooms() {
     setSelectedTypes(arr => arr.includes(type) ? arr.filter(t => t !== type) : [...arr, type]);
   };
   const handleReset = () => {
-    setSearch(''); setSelectedAmenities([]); setSelectedTypes([]); setPrice([0, 5000000]); setPage(1);
+    setKeyword(''); setSelectedAmenities([]); setSelectedTypes([]); setPrice([0, 5000000]); setPage(1);
   };
 
-  // UI
   if (loading) {
     return <div className="flex justify-center items-center py-24"><div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div></div>;
   }
@@ -180,7 +183,7 @@ export default function Rooms() {
                 <p className="text-xs font-bold text-gray-800 uppercase tracking-wide">Tìm kiếm</p>
                 <input 
                   className="w-full text-sm outline-none bg-transparent placeholder-gray-400 text-gray-700 truncate"
-                  placeholder="Tên phòng, khách sạn..."
+                  placeholder="Tên phòng, loại phòng..."
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                 />
@@ -351,8 +354,8 @@ export default function Rooms() {
             <div className="w-full sm:flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
+                value={keyword} 
+                onChange={e => setKeyword(e.target.value)} 
                 placeholder="Tìm phòng theo loại..." 
                 className="pl-10 pr-4" 
               />
@@ -389,7 +392,7 @@ export default function Rooms() {
             </div>
           </div>
           {/* Result summary */}
-          <div className="mb-5 text-sm text-gray-600">Tìm thấy <b className="text-gray-800">{filteredRooms.length}</b> phòng phù hợp</div>
+          <div className="mb-5 text-sm text-gray-600">Tìm thấy <b className="text-gray-800">{totalCount}</b> phòng phù hợp</div>
           {/* Room List */}
           <div className={`${viewType === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4'}`}>
             {paginatedRooms.map(room => (
@@ -446,47 +449,107 @@ export default function Rooms() {
           </div>
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col items-center mt-10 gap-4">
+            <div className="flex flex-col items-center mt-12 gap-6">
               <div className="flex flex-wrap justify-center gap-2">
                 <Button 
                   size="sm" 
                   variant="outline" 
                   disabled={page === 1} 
                   onClick={() => { setPage(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:bg-gray-100"
+                  className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   ← Trước
                 </Button>
-                <div className="flex gap-1">
-                  {[...Array(Math.min(totalPages, 7))].map((_, i) => {
-                    let pageNum = i + 1;
-                    if (totalPages > 7 && i === 6) {
-                      pageNum = totalPages;
-                    }
-                    return (
-                      <Button 
-                        size="sm" 
-                        key={i} 
-                        variant={page === pageNum ? 'default' : 'outline'} 
-                        onClick={() => { setPage(pageNum); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className={page === pageNum ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-gray-100'}
+                
+                <div className="flex gap-1 items-center">
+                  {totalPages <= 5 ? (
+                    // Nếu ít trang, hiển thị tất cả
+                    [...Array(totalPages)].map((_, i) => (
+                      <Button
+                        key={i + 1}
+                        size="sm"
+                        variant={page === i + 1 ? 'default' : 'outline'}
+                        onClick={() => { setPage(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className={`w-10 h-10 p-0 ${page === i + 1 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
+                          : 'hover:bg-blue-50 hover:text-blue-600'}`}
                       >
-                        {pageNum}
+                        {i + 1}
                       </Button>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    // Nếu nhiều trang, hiển thị thông minh
+                    <>
+                      {/* Trang đầu */}
+                      <Button
+                        size="sm"
+                        variant={page === 1 ? 'default' : 'outline'}
+                        onClick={() => { setPage(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className={`w-10 h-10 p-0 ${page === 1 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
+                          : 'hover:bg-blue-50 hover:text-blue-600'}`}
+                      >
+                        1
+                      </Button>
+
+                      {/* Dấu ... nếu cần */}
+                      {page > 3 && <span className="px-2 text-gray-400">...</span>}
+
+                      {/* Các trang xung quanh trang hiện tại */}
+                      {[...Array(3)].map((_, i) => {
+                        const pageNum = page - 1 + i;
+                        if (pageNum > 1 && pageNum < totalPages) {
+                          return (
+                            <Button
+                              key={pageNum}
+                              size="sm"
+                              variant={page === pageNum ? 'default' : 'outline'}
+                              onClick={() => { setPage(pageNum); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                              className={`w-10 h-10 p-0 ${page === pageNum 
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
+                                : 'hover:bg-blue-50 hover:text-blue-600'}`}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      {/* Dấu ... nếu cần */}
+                      {page < totalPages - 2 && <span className="px-2 text-gray-400">...</span>}
+
+                      {/* Trang cuối */}
+                      <Button
+                        size="sm"
+                        variant={page === totalPages ? 'default' : 'outline'}
+                        onClick={() => { setPage(totalPages); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className={`w-10 h-10 p-0 ${page === totalPages 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' 
+                          : 'hover:bg-blue-50 hover:text-blue-600'}`}
+                      >
+                        {totalPages}
+                      </Button>
+                    </>
+                  )}
                 </div>
+
                 <Button 
                   size="sm" 
                   variant="outline" 
                   disabled={page === totalPages} 
                   onClick={() => { setPage(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:bg-gray-100"
+                  className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Tiếp →
                 </Button>
               </div>
-              <div className="text-xs text-gray-500">Trang {page}/{totalPages}</div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-600">Trang <span className="font-semibold text-gray-800">{page}</span> / <span className="font-semibold text-gray-800">{totalPages}</span></span>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-600">Tổng <span className="font-semibold text-gray-800">{totalCount}</span> phòng</span>
+              </div>
             </div>
           )}
         </div>
