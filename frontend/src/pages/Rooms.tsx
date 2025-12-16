@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { roomAPI } from '../api/api';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Star, Wifi, Tv, Coffee, Car, Grid, List, Calendar, Users, Minus, Plus, ChevronDown } from 'lucide-react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '../components/ui/Button';
+
+type Timeout = ReturnType<typeof setTimeout>;
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
@@ -49,7 +51,7 @@ export default function Rooms() {
   const [sort, setSort] = useState('popularity');
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<Timeout | null>(null);
   
   const [startDate, setStartDate] = useState(searchParams.get('checkIn') || new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(searchParams.get('checkOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0]);
