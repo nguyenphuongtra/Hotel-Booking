@@ -1,7 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
-app.set('trust proxy', 1);
 const session = require('express-session');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -11,6 +10,7 @@ const errorHandler = require('./src/middleware/errorHandler');
 const passport = require('./src/config/google');
 
 const app = express();
+app.set('trust proxy', 1);
 connectDB();
 
 app.use(helmet());
