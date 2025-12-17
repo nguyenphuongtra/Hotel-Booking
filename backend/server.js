@@ -38,6 +38,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // routes
+app.use('/vnpay_return', (req, res) => {
+  res.redirect(307, '/api/payments/vnpay_return?' + new URLSearchParams(req.query).toString());
+});
+
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/users', require('./src/routes/users.routes'));
 app.use('/api/rooms', require('./src/routes/rooms.routes'));
