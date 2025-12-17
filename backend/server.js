@@ -1,6 +1,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
+app.set('trust proxy', 1);
 const session = require('express-session');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -15,7 +16,8 @@ connectDB();
 app.use(helmet());
 app.use(cors({ origin: [
     'http://localhost:5173',
-    'https://hotel-booking-ix1p.onrender.com'
+    'https://hotel-booking-ix1p.onrender.com',
+    'https://hotel-booking-gray-alpha.vercel.app'
 ] , credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +28,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, 
+    secure: true, 
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
@@ -38,7 +41,6 @@ app.use(passport.session());
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/users', require('./src/routes/users.routes'));
 app.use('/api/rooms', require('./src/routes/rooms.routes'));
-app.use('/api/rooms', require('./src/routes/users.routes'));
 app.use('/api/bookings', require('./src/routes/bookings.routes'));
 app.use('/api/coupons', require('./src/routes/coupons.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes'));
