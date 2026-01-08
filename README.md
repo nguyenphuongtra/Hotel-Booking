@@ -635,7 +635,7 @@ Your Name - [GitHub Profile](https://github.com/yourusername)
 
 ## 📞 Support
 
-For support, email support@hotelbooking.com or open an issue on GitHub.
+For support, email nguyenthanhtra.240805@gmail.com or open an issue on GitHub.
 
 ## 🙏 Acknowledgments
 
