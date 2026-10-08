@@ -173,6 +173,17 @@ export const paymentAPI = {
 export const adminAPI = {
 };
 
+export const contactAPI = {
+  createContact: (data: {
+    name: string;
+    email: string;
+    phone: string;
+    subject: string;
+    message: string;
+  }) =>
+    apiClient.post('/contacts', data),
+};
+
 export const blogAPI = {
   createBlog: (data: any) =>
     apiClient.post('/blogs', data),

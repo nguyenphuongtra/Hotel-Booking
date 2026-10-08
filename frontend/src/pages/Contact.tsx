@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react'
 import HotelMap from '../components/Layout/HotelMap'
+import { contactAPI } from '../api/api'
 
 interface FormData {
   name: string
@@ -34,15 +35,9 @@ export default function Contact() {
     setIsLoading(true)
     
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
+      const response = await contactAPI.createContact(formData)
       
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         setIsSubmitted(true)
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
         setTimeout(() => setIsSubmitted(false), 5000)

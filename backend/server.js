@@ -16,8 +16,8 @@ connectDB();
 app.use(helmet());
 app.use(cors({ origin: [
     'http://localhost:5173',
-    'https://hotel-booking-ix1p.onrender.com',
-    'https://hotel-booking-gray-alpha.vercel.app'
+    // 'https://hotel-booking-ix1p.onrender.com',
+    // 'https://hotel-booking-gray-alpha.vercel.app'
 ] , credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -28,8 +28,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true, 
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
