@@ -1,6 +1,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -14,11 +15,11 @@ app.set('trust proxy', 1);
 connectDB();
 
 app.use(helmet());
-app.use(cors({ origin: [
-    'http://localhost:5173',
-    // 'https://hotel-booking-ix1p.onrender.com',
-    // 'https://hotel-booking-gray-alpha.vercel.app'
-] , credentials: true }));
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
@@ -36,6 +37,11 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.get('/healthz', (req, res) => {
+  const ready = mongoose.connection.readyState === 1;
+  res.status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'starting' });
+});
 
 // routes
 app.use('/vnpay_return', (req, res) => {
