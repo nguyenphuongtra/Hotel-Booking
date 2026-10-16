@@ -1,0 +1,40 @@
+name: hotel-booking-app
+
+services:
+  api:
+    build:
+      context: ./backend
+    image: hotel-booking-api:latest
+    restart: unless-stopped
+    env_file:
+      - ./backend.env
+    expose:
+      - "5000"
+    networks:
+      - hotel_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    image: hotel-booking-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - hotel_network
+
+networks:
+  hotel_network:
+    external: true
+    name: ${MONGO_DOCKER_NETWORK:-hotel-booking_hotel_network}
