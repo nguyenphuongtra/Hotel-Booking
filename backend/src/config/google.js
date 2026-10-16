@@ -9,6 +9,7 @@ const googleConfig = {
   proxy: true,
 };
 
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 passport.use(new GoogleStrategy(
   googleConfig,
   async (accessToken, refreshToken, profile, done) => {
@@ -44,6 +45,7 @@ passport.use(new GoogleStrategy(
     }
   }
 ));
+}
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
