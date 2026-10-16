@@ -35,7 +35,7 @@ export default function Header() {
             <div className="text-3xl font-black text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-100 transition-all duration-300 group-hover:scale-105">
               Mường Thanh
             </div>
-            <span className="hidden sm:block text-xs font-semibold text-orange-500 uppercase tracking-widest">Resort</span>
+            <span className="hidden sm:block text-xs font-semibold text-orange-500 uppercase tracking-widest">Resortt</span>
           </Link>
           
           <nav className="hidden md:flex gap-8">
