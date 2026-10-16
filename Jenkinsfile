@@ -1,77 +1,96 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCR_REGISTRY = 'registry.digitalocean.com'
-        DOCR_NAMESPACE = 'YOUR_REGISTRY'
-        DROPLET_HOST = 'YOUR_DROPLET_IP'
-        APP_DOMAIN = 'booking.example.com'
-        DEPLOY_DIR = '/opt/hotel-booking'
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    skipDefaultCheckout(true)
+  }
+  environment {
+    EC2_HOST = '13.210.172.242'
+    DEPLOY_DIR = '/opt/hotel-booking'
+  }
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
     }
-
-    options {
-        disableConcurrentBuilds()
-        timestamps()
+    stage('Validate') {
+      steps {
+        sh '''
+          set -eu
+          test -f compose.aws.yaml
+          test -f backend/Dockerfile
+          test -f frontend/Dockerfile
+          test -f frontend/nginx.conf
+          test -f backend/package-lock.json
+          test -f frontend/package-lock.json
+        '''
+      }
     }
-
-    stages {
-        stage('Checkout and build') {
-            steps {
-                checkout scm
-                sh '''
-                    set -eu
-                                        docker build -f backend/Dockerfile -t "$DOCR_REGISTRY/$DOCR_NAMESPACE/hotel-booking-api:$GIT_COMMIT" backend
-                    docker build -f frontend/Dockerfile --build-arg VITE_API_URL=/api \
-                                            -t "$DOCR_REGISTRY/$DOCR_NAMESPACE/hotel-booking-frontend:$GIT_COMMIT" frontend
-                '''
-            }
-        }
-
-        stage('Push to DigitalOcean Registry') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'do-cr-credentials',
-                    usernameVariable: 'DOCR_USERNAME',
-                    passwordVariable: 'DOCR_PASSWORD'
-                )]) {
-                    sh '''
-                        set -eu
-                        printf '%s' "$DOCR_PASSWORD" | docker login "$DOCR_REGISTRY" \
-                          --username "$DOCR_USERNAME" --password-stdin
-                        docker push "$DOCR_REGISTRY/$DOCR_NAMESPACE/hotel-booking-api:$GIT_COMMIT"
-                        docker push "$DOCR_REGISTRY/$DOCR_NAMESPACE/hotel-booking-frontend:$GIT_COMMIT"
-                        docker logout "$DOCR_REGISTRY"
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy to Droplet') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'do-cr-credentials',
-                        usernameVariable: 'DOCR_USERNAME',
-                        passwordVariable: 'DOCR_PASSWORD'
-                    ),
-                    sshUserPrivateKey(
-                        credentialsId: 'do-droplet-ssh',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
-                    sh '''
-                        set -eu
-                        ssh -i "$SSH_KEY" "$SSH_USER@$DROPLET_HOST" "mkdir -p '$DEPLOY_DIR'"
-                        scp -i "$SSH_KEY" compose.deploy.yaml Caddyfile \
-                          "$SSH_USER@$DROPLET_HOST:$DEPLOY_DIR/"
-                        printf '%s' "$DOCR_PASSWORD" | ssh -i "$SSH_KEY" "$SSH_USER@$DROPLET_HOST" \
-                          "docker login '$DOCR_REGISTRY' --username '$DOCR_USERNAME' --password-stdin"
-                        ssh -i "$SSH_KEY" "$SSH_USER@$DROPLET_HOST" \
-                          "printf 'DOCR_REGISTRY=%s\\nDOCR_NAMESPACE=%s\\nIMAGE_TAG=%s\\nAPP_DOMAIN=%s\\n' '$DOCR_REGISTRY' '$DOCR_NAMESPACE' '$GIT_COMMIT' '$APP_DOMAIN' > '$DEPLOY_DIR/deploy.env' && cd '$DEPLOY_DIR' && docker compose --env-file deploy.env -f compose.deploy.yaml pull && docker compose --env-file deploy.env -f compose.deploy.yaml up -d --remove-orphans"
-                    '''
-                }
-            }
-        }
+    stage('Package') {
+      steps {
+        sh '''
+          set -eu
+          tar -czf hotel-booking-source.tar.gz \
+            --exclude=node_modules \
+            --exclude=.git \
+            --exclude=.env \
+            --exclude='.env.*' \
+            --exclude=dist \
+            backend frontend compose.aws.yaml
+        '''
+      }
     }
+    stage('Deploy to EC2') {
+      steps {
+        withCredentials([sshUserPrivateKey(
+          credentialsId: 'aws-ec2-ssh',
+          keyFileVariable: 'SSH_KEY',
+          usernameVariable: 'SSH_USER'
+        )]) {
+          sh '''
+            set -eu
+            ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              "$SSH_USER@$EC2_HOST" "mkdir -p '$DEPLOY_DIR'"
+            scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              hotel-booking-source.tar.gz "$SSH_USER@$EC2_HOST:$DEPLOY_DIR/"
+            ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              "$SSH_USER@$EC2_HOST" "DEPLOY_DIR='$DEPLOY_DIR' bash -se" <<'REMOTE'
+set -eu
+cd "$DEPLOY_DIR"
+test -s .env
+test -s backend.env
+test -f compose.mongo.yaml
+docker inspect hotel-booking-mongo >/dev/null
+tar -xzf hotel-booking-source.tar.gz
+docker compose -f compose.aws.yaml config -q
+docker compose -f compose.aws.yaml build
+docker compose -f compose.aws.yaml up -d --remove-orphans
+docker compose -f compose.aws.yaml ps
+rm -f hotel-booking-source.tar.gz
+REMOTE
+          '''
+        }
+      }
+    }
+    stage('Health check') {
+      steps {
+        sh '''
+          set -eu
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            if curl --fail --silent --show-error --max-time 10 \
+                 "http://$EC2_HOST/healthz"; then
+              echo "Deployment healthy"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Deployment failed health check" >&2
+          exit 1
+        '''
+      }
+    }
+  }
+  post {
+    always { sh 'rm -f hotel-booking-source.tar.gz || true' }
+  }
 }
