@@ -23,13 +23,14 @@ routes.post('/login',
 );
 
 
-routes.get('/google', 
-  passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    state: true  
-  })
-);
+const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
+routes.get('/google', (req, res, next) => {
+  if (!googleEnabled) return res.status(503).json({ message: 'Google OAuth is not configured' });
+  return passport.authenticate('google', { scope: ['profile', 'email'], state: true })(req, res, next);
+});
 routes.get('/google/callback', (req, res, next) => {
+  if (!googleEnabled) return res.status(503).json({ message: 'Google OAuth is not configured' });
   if (!req.query || !req.query.code) {
     return res.redirect('/api/auth/google');
   }
